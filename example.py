@@ -1,6 +1,7 @@
 from client_terminal import *
 import json
 
+client = None
 current_channel = None
 
 def check_text_channel():
@@ -300,6 +301,7 @@ async def eval_e(*args):
 		error(e)
 
 def main():
+	global client
 	client = Client()
 	echo('Registering commands...')
 	
