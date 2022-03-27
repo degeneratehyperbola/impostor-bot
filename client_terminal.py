@@ -9,14 +9,8 @@ from shlex import split as posix_split
 import discord
 
 class Terminal:
-	cmd_reg = dict()
-	var_reg = dict()
-
-	def __init__(self):
-		notice('Terminal initialised')
-	
-	async def on_ready(self):
-		notice('Terminal ready')
+	cmd_reg = {}
+	var_reg = {}
 	
 	def register(self, alias: str, cmd: Cmd):
 		self.cmd_reg[alias] = cmd
@@ -180,8 +174,6 @@ class Client(discord.Client):
 		super().__init__(*args, **kwargs)
 		
 		self._terminal_task = self.loop.create_task(self._terminal_run())
-
-		notice('Client initialised')
 	
 	async def close(self):
 		error("Shutting down...")
@@ -192,11 +184,8 @@ class Client(discord.Client):
 		await self.wait_until_ready()
 		await sleep(0.3)
 		
-		bold('Pending input')
-		
 		while not self.is_closed():
 			await self.terminal.parse(await ainput('Awesome Wallpapers > '))
 	
 	async def on_ready(self):
-		notice('Client connected successfuly')
-		await self.terminal.on_ready()
+		notice('Client connected')
