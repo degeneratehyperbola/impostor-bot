@@ -1,6 +1,7 @@
 from client_terminal import *
-import json
+from config import *
 
+config = Config()
 client = None
 current_channel = None
 
@@ -21,59 +22,6 @@ def check_voice_channel():
 	if not isinstance(current_channel, discord.VoiceChannel):
 		error('Current channel is not a voice channel')
 		return True
-
-### CONFIG ###
-
-CFG_PATH = "config.json"
-CFG_CID = "ChannelID"
-CFG_TOK = "BotToken"
-
-def check_config():
-	from os.path import exists
-	if not exists(CFG_PATH):
-		open(CFG_PATH, "w").close()
-
-def write_config(key: str, value):
-	check_config()
-
-	cfg = None
-	with open(CFG_PATH, "r+") as file:
-		buffer = file.read()
-		if len(buffer):
-			cfg = json.loads(buffer)
-	
-		file.seek(0)
-
-		if type(cfg) is dict:
-			cfg[key] = value
-			file.write(json.dumps(cfg, sort_keys=True, indent=4))
-		else:
-			dummy = {key: value}
-			file.write(json.dumps(dummy, sort_keys=True, indent=4))
-		
-		file.close()
-
-def read_config():
-	check_config()
-
-	cfg = None
-	with open(CFG_PATH, "r") as file:
-		buffer = file.read()
-		if not len(buffer):
-			return
-		cfg = json.loads(buffer)
-		file.close()
-
-	if type(cfg) is dict:
-		return cfg
-
-async def load_config():
-	try:
-		await set_channel(read_config()[CFG_CID])
-	except TypeError or KeyError:
-		pass
-
-	notice("Config loaded")
 
 ### GARBAGE COLLECTOR ###
 
@@ -116,7 +64,8 @@ async def set_channel(channel_user_id: int):
 	
 	notice(f'Current channel set to {type(channel).__name__} "{channel.name}"')
 
-	write_config(CFG_CID, channel_user_id)
+	config[CFG_CHANNELID] = channel_user_id
+	config.save()
 
 async def sendmsg(*msgs: str):
 	if check_text_channel(): return
@@ -303,7 +252,6 @@ async def eval_e(*args):
 def main():
 	global client
 	client = Client()
-	echo('Registering commands...')
 	
 	client.terminal.register('help', cmdlist)
 	
@@ -337,16 +285,15 @@ def main():
 	client.terminal.register('paus', pause_audio)
 	client.terminal.register('rsum', resume_audio)
 
-	client.terminal.register('cfg', load_config)
 	client.terminal.register('cachc', clear_cache)
 
 	notice(f'Successfully registered {len(client.terminal.cmds())} commands. Type "help" to see a full list of instructions')
-	echo('Client connecting...')
+	print("Connecting...")
 
-	client.run
+	config.load()
 
 	try:
-		client.loop.run_until_complete(client.start(read_config()[CFG_TOK]))
+		client.loop.run_until_complete(client.start(config[CFG_TOKEN]))
 	except TypeError or KeyError:
 		error(f"Missing bot token in {CFG_PATH}")
 	except discord.LoginFailure:
