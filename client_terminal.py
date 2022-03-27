@@ -9,11 +9,17 @@ from shlex import split as posix_split
 import discord
 
 class Terminal:
-	cmd_reg = {}
-	var_reg = {}
+	_cmd_reg = {}
+	_var_reg = {}
 	
+	def cmds(self):
+		return self._cmd_reg.copy()
+		
+	def vars(self):
+		return self._var_reg.copy()
+
 	def register(self, alias: str, cmd: Cmd):
-		self.cmd_reg[alias] = cmd
+		self._cmd_reg[alias] = cmd
 	
 	#executes a command
 	async def exec(self, alias: str, *args):
@@ -21,7 +27,7 @@ class Terminal:
 		
 		# Search for a command with the given alias
 		try:
-			fn = self.cmd_reg[alias]
+			fn = self._cmd_reg[alias]
 		except KeyError:
 			error(f'Error: "{alias}" was not recognised as a command!')
 			return
@@ -98,7 +104,7 @@ class Terminal:
 		val = None
 
 		try:
-			val = self.var_reg[alias]
+			val = self._var_reg[alias]
 		except KeyError:
 			error(f'Error: "{alias}" was not recognised as a variable!')
 			return
@@ -115,7 +121,7 @@ class Terminal:
 			error(f'Error: cannot assign VOID to "{alias}"! Variable remains unchanged.')
 			return
 		
-		self.var_reg[alias] = val
+		self._var_reg[alias] = val
 
 	# Parses text into a command and a list of its arguments, also handles inline variables
 	async def parse(self, text: str):

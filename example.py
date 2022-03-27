@@ -92,7 +92,7 @@ async def clear_cache():
 async def cmdlist(*msgs: str):
 	bold('List of registered commands')
 	
-	for key in client.terminal.cmd_reg.keys():
+	for key in client.terminal.cmds().keys():
 		echo(key)
 
 async def set_channel(channel_user_id: int):
@@ -340,7 +340,7 @@ def main():
 	client.terminal.register('cfg', load_config)
 	client.terminal.register('cachc', clear_cache)
 
-	notice(f'Successfully registered {len(client.terminal.cmd_reg)} commands. Type "help" to see a full list of instructions')
+	notice(f'Successfully registered {len(client.terminal.cmds())} commands. Type "help" to see a full list of instructions')
 	echo('Client connecting...')
 
 	client.run
