@@ -1,5 +1,6 @@
 from client_terminal import *
 from config import *
+from threading import Thread
 
 config = Config()
 client = None
@@ -116,9 +117,7 @@ async def leave_voice_channel(channel_guild_id: int):
 
 	await guild.voice_client.disconnect()
 
-async def play_audio(path: str):
-	if check_voice_channel(): return
-
+def play_audio(path: str):
 	vc = current_channel.guild.voice_client
 
 	if not vc:
@@ -131,9 +130,7 @@ async def play_audio(path: str):
 		error("Already playing audio")
 		return
 
-async def play_audio_web(url: str):
-	if check_voice_channel(): return
-
+def download_play_audio(url: str):
 	from youtube_dl import YoutubeDL
 	path = None
 	with YoutubeDL({"outtmpl": "cache\%(title)s-%(id)s.%(ext)s", "format": "bestaudio", "nooverwrites": False, "quiet": True, "noplaylist": True}) as ytdl:
@@ -144,7 +141,17 @@ async def play_audio_web(url: str):
 			error("Unable to download audio")
 			return
 		
-	await play_audio(path)
+	play_audio(path)
+
+async def audio_fs(path: str):
+	if check_voice_channel(): return
+	
+	Thread(target=play_audio, args=(path,)).start()
+
+async def audio_web(url: str):
+	if check_voice_channel(): return
+
+	Thread(target=download_play_audio, args=(url,)).start()
 
 async def stop_audio():
 	if check_voice_channel(): return
@@ -249,6 +256,8 @@ async def eval_e(*args):
 	except Exception as e:
 		error(e)
 
+### ENTRY POINT ###
+
 def main():
 	global client
 	client = Client()
@@ -279,8 +288,8 @@ def main():
 	client.terminal.register('join', join_channel)
 	client.terminal.register('leavall', leave_all_voice_channels)
 	client.terminal.register('leavc', leave_voice_channel)
-	client.terminal.register('play', play_audio)
-	client.terminal.register('playw', play_audio_web)
+	client.terminal.register('play', audio_fs)
+	client.terminal.register('playw', audio_web)
 	client.terminal.register('stop', stop_audio)
 	client.terminal.register('paus', pause_audio)
 	client.terminal.register('rsum', resume_audio)
