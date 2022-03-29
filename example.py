@@ -6,19 +6,25 @@ config = Config()
 client = None
 current_channel = None
 
-def check_text_channel():
+### CHECKS ###
+
+async def check_channel():
 	if not current_channel:
-		error('Unknown current channel. Use "setch" command to set a new current channel')
-		return True
+		try:
+			await set_channel(config[CFG_CHANNELID])
+		except:
+			error('Unknown current channel. Use "setch" command to set a new current channel')
+			return True
+
+async def check_text_channel():
+	if await check_channel(): return True
 
 	if not isinstance(current_channel, discord.TextChannel) and not issubclass(current_channel, discord.abc.PrivateChannel):
 		error('Current channel is not a text channel')
 		return True
 
-def check_voice_channel():
-	if not current_channel:
-		error('Unknown current channel. Use "setch" command to set a new current channel')
-		return True
+async def check_voice_channel():
+	if await check_channel(): return True
 
 	if not isinstance(current_channel, discord.VoiceChannel):
 		error('Current channel is not a voice channel')
@@ -69,12 +75,12 @@ async def set_channel(channel_user_id: int):
 	config.save()
 
 async def sendmsg(*msgs: str):
-	if check_text_channel(): return
+	if await check_text_channel(): return
 
 	await current_channel.send(' '.join(msgs))
 
 async def join_channel():
-	if check_voice_channel(): return
+	if await check_voice_channel(): return
 
 	try:
 		await current_channel.connect()
@@ -144,17 +150,17 @@ def download_play_audio(url: str):
 	play_audio(path)
 
 async def audio_fs(path: str):
-	if check_voice_channel(): return
+	if await check_voice_channel(): return
 	
 	Thread(target=play_audio, args=(path,)).start()
 
 async def audio_web(url: str):
-	if check_voice_channel(): return
+	if await check_voice_channel(): return
 
 	Thread(target=download_play_audio, args=(url,)).start()
 
 async def stop_audio():
-	if check_voice_channel(): return
+	if await check_voice_channel(): return
 
 	vc = current_channel.guild.voice_client
 
@@ -165,7 +171,7 @@ async def stop_audio():
 	vc.stop()
 
 async def pause_audio():
-	if check_voice_channel(): return
+	if await check_voice_channel(): return
 
 	vc = current_channel.guild.voice_client
 
@@ -176,7 +182,7 @@ async def pause_audio():
 	vc.pause()
 	
 async def resume_audio():
-	if check_voice_channel(): return
+	if await check_voice_channel(): return
 
 	vc = current_channel.guild.voice_client
 
@@ -199,7 +205,7 @@ async def username(user_id: int):
 	return f'{user.name}#{user.discriminator}'
 
 async def delete_num(count: int = 5):
-	if check_text_channel(): return
+	if await check_text_channel(): return
 
 	deleted = 0
 	
@@ -210,7 +216,7 @@ async def delete_num(count: int = 5):
 	notice(f'Successfully deleted {deleted} message(s)')
 
 async def delete_last():
-	if check_text_channel(): return
+	if await check_text_channel(): return
 
 	message = None
 	
@@ -224,7 +230,7 @@ async def delete_last():
 	notice('Successfully deleted 1 message')
 
 async def msg_history(count: int = 5):
-	if check_text_channel(): return
+	if await check_text_channel(): return
 
 	last = None
 	msgs = await current_channel.history(limit = count).flatten()
