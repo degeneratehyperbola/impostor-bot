@@ -276,6 +276,7 @@ def main():
 	
 	isn_context.register('input', ainput)
 	isn_context.register('nop', nop)
+	isn_context.register('rem', nop)
 	isn_context.register('eval', eval_e)
 	
 	isn_context.register('break', client.close)

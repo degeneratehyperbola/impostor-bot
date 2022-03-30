@@ -116,16 +116,17 @@ class Context:
 		return val
 	
 	# Assigns a value to or declares a variable
-	async def setvar(self, alias: str, val):
+	async def setvar(self, alias: str, val: str):
 		if val is None:
 			error(f'Error: cannot assign VOID to "{alias}"! Variable remains unchanged.')
 			return
-		
+
 		self._var_reg[alias] = val
 
 	# Parses text into a command and a list of its arguments, also handles inline variables
 	async def parse(self, text: str):
 		# TODO:
+		# - Comments with #
 		# - Detours with > or perhaps with separate command (idk, more of a frontend task)
 		# - Scopes O_O powered by scoped_split()
 		# - Operations on variables O_O
