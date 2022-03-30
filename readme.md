@@ -10,6 +10,13 @@ And yes, it delivers on the promise of doing a little trolling.
 # Usage
 This repository contains `example.py` file which might seem to be the example but, in fact, holds most of the bot's functionality and the entry point. If You want to just no-brain run it, run aforesaid `example.py` file
 
+**Note: A bot token must be placed inside `config.json` file in the same directory in order for it to work**
+```json
+{
+	"BotToken": "YOUR TOKEN HERE"
+}
+```
+
 ## Syntax
 A simple POSIX-like syntax with no super advanced stuff like dumps or nesting.
 
@@ -70,6 +77,11 @@ play "D:\Music\Bad Piggies Soundtrack.m4a"
 
 ## Instruction Set
 You can see the list of all implemented commands using the `help` command, however they are not yet documented :P
+
+# Dependancies
+- Python 3.10
+- discord.py
+- PyNaCl (only used for audio)
 
 # TODO List
 Each module's TODO list is in their respective files.
