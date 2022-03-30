@@ -1,7 +1,9 @@
-from client_terminal import *
+from client import *
 from config import *
+from isn import *
 from threading import Thread
 
+isn_context = Context()
 config = Config()
 client = None
 current_channel = None
@@ -47,7 +49,7 @@ async def clear_cache():
 async def cmdlist(*msgs: str):
 	bold('List of registered commands')
 	
-	for key in client.terminal.cmds().keys():
+	for key in isn_context.cmds().keys():
 		echo(key)
 
 async def set_channel(channel_user_id: int):
@@ -95,7 +97,7 @@ async def leave_all_voice_channels():
 			await voice_client.disconnect()
 			left += 1
 	
-	notice(f'Left {left} voice channels')
+	notice(f'Left {left} voice channel(s)')
 
 async def leave_voice_channel(channel_guild_id: int):
 	guild = None
@@ -264,48 +266,56 @@ async def eval_e(*args):
 
 ### ENTRY POINT ###
 
+async def command_prompt():
+	await client.wait_until_ready()
+	
+	while True:
+		await isn_context.parse(await ainput(">"))
+
 def main():
 	global client
 	client = Client()
 	
-	client.terminal.register('help', cmdlist)
+	isn_context.register('help', cmdlist)
 	
-	client.terminal.register('echo', echo)
-	client.terminal.register('ntc', notice)
-	client.terminal.register('err', error)
-	client.terminal.register('bold', bold)
-	client.terminal.register('cls', clear)
-	client.terminal.register('pos', cur_pos)
+	isn_context.register('echo', echo)
+	isn_context.register('ntc', notice)
+	isn_context.register('err', error)
+	isn_context.register('bold', bold)
+	isn_context.register('cls', clear)
+	isn_context.register('pos', cur_pos)
 	
-	client.terminal.register('input', ainput)
-	client.terminal.register('nop', nop)
-	client.terminal.register('eval', eval_e)
+	isn_context.register('input', ainput)
+	isn_context.register('nop', nop)
+	isn_context.register('eval', eval_e)
 	
-	client.terminal.register('break', client.close)
+	isn_context.register('break', client.close)
 
-	client.terminal.register('unam', username)
+	isn_context.register('unam', username)
 	
-	client.terminal.register('setch', set_channel)
-	client.terminal.register('msg', sendmsg)
-	client.terminal.register('unmsg', delete_last)
-	client.terminal.register('rmsg', delete_num)
-	client.terminal.register('his', msg_history)
+	isn_context.register('setch', set_channel)
+	isn_context.register('msg', sendmsg)
+	isn_context.register('unmsg', delete_last)
+	isn_context.register('rmsg', delete_num)
+	isn_context.register('his', msg_history)
 
-	client.terminal.register('join', join_channel)
-	client.terminal.register('leavall', leave_all_voice_channels)
-	client.terminal.register('leavc', leave_voice_channel)
-	client.terminal.register('play', audio_fs)
-	client.terminal.register('playw', audio_web)
-	client.terminal.register('stop', stop_audio)
-	client.terminal.register('paus', pause_audio)
-	client.terminal.register('rsum', resume_audio)
+	isn_context.register('join', join_channel)
+	isn_context.register('leavall', leave_all_voice_channels)
+	isn_context.register('leavc', leave_voice_channel)
+	isn_context.register('play', audio_fs)
+	isn_context.register('playw', audio_web)
+	isn_context.register('stop', stop_audio)
+	isn_context.register('paus', pause_audio)
+	isn_context.register('rsum', resume_audio)
 
-	client.terminal.register('cachc', clear_cache)
+	isn_context.register('cachc', clear_cache)
 
-	notice(f'Successfully registered {len(client.terminal.cmds())} commands. Type "help" to see a full list of instructions')
+	notice(f'Successfully registered {len(isn_context.cmds())} commands. Type "help" to see a full list of instructions')
 	print("Connecting...")
 
 	config.load()
+
+	client.create_task(command_prompt())
 
 	try:
 		client.loop.run_until_complete(client.start(config[CFG_TOKEN]))

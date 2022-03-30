@@ -1,14 +1,14 @@
 from helpers import *
 from typing import Callable as Cmd
 from inspect import iscoroutinefunction as is_async
-from asyncio import sleep
 from inspect import signature as Signature
 from inspect import Parameter
 from inspect import _empty as AnyType
 from shlex import split as posix_split
-import discord
 
-class Terminal:
+### IMPOSTOR SCRIPT NOTATION ###
+
+class Context:
 	_cmd_reg = {}
 	_var_reg = {}
 	
@@ -171,27 +171,3 @@ class Terminal:
 					parsed_args.append(arg)
 		
 		return await self.exec(alias, *parsed_args)
-
-class Client(discord.Client):
-	terminal = Terminal()
-	_terminal_task = None
-	
-	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
-		
-		self._terminal_task = self.loop.create_task(self._terminal_run())
-	
-	async def close(self):
-		error("Shutting down...")
-		self._terminal_task.cancel()
-		return await super().close()
-
-	async def _terminal_run(self):
-		await self.wait_until_ready()
-		await sleep(0.3)
-		
-		while not self.is_closed():
-			await self.terminal.parse(await ainput('Awesome Wallpapers > '))
-	
-	async def on_ready(self):
-		notice('Client connected')
