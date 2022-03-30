@@ -27,10 +27,20 @@ async def check_text_channel():
 
 async def check_voice_channel():
 	if await check_channel(): return True
-
+	
 	if not isinstance(current_channel, discord.VoiceChannel):
 		error('Current channel is not a voice channel')
 		return True
+
+async def check_voice_client():
+	if await check_voice_channel(): return True
+
+	if not current_channel.guild.voice_client:
+		try:
+			await join_channel()
+		except:
+			error(f'Unknown error occured while connecting to "{current_channel.guild.name}"')
+			return
 
 ### GARBAGE COLLECTOR ###
 
@@ -126,14 +136,8 @@ async def leave_voice_channel(channel_guild_id: int):
 	await guild.voice_client.disconnect()
 
 def play_audio(path: str):
-	vc = current_channel.guild.voice_client
-
-	if not vc:
-		error(f'Not connected in "{current_channel.guild.name}"')
-		return
-	
 	try:
-		vc.play(discord.FFmpegPCMAudio(source=path))
+		current_channel.guild.voice_client.play(discord.FFmpegPCMAudio(source=path))
 	except discord.ClientException:
 		error("Already playing audio")
 		return
@@ -152,47 +156,29 @@ def download_play_audio(url: str):
 	play_audio(path)
 
 async def audio_fs(path: str):
-	if await check_voice_channel(): return
-	
+	if await check_voice_client(): return
+
 	Thread(target=play_audio, args=(path,)).start()
 
 async def audio_web(url: str):
-	if await check_voice_channel(): return
+	if await check_voice_client(): return
 
 	Thread(target=download_play_audio, args=(url,)).start()
 
 async def stop_audio():
-	if await check_voice_channel(): return
-
-	vc = current_channel.guild.voice_client
-
-	if not vc:
-		error(f'Not connected in "{current_channel.guild.name}"')
-		return
+	if await check_voice_client(): return
 	
-	vc.stop()
+	current_channel.guild.voice_client.stop()
 
 async def pause_audio():
-	if await check_voice_channel(): return
+	if await check_voice_client(): return
 
-	vc = current_channel.guild.voice_client
+	current_channel.guild.voice_client.pause()
 
-	if not vc:
-		error(f'Not connected in "{current_channel.guild.name}"')
-		return
-	
-	vc.pause()
-	
 async def resume_audio():
-	if await check_voice_channel(): return
+	if await check_voice_client(): return
 
-	vc = current_channel.guild.voice_client
-
-	if not vc:
-		error(f'Not connected in "{current_channel.guild.name}"')
-		return
-
-	vc.resume()
+	current_channel.guild.voice_client.resume()
 
 async def username(user_id: int):
 	user = client.get_user(user_id)
