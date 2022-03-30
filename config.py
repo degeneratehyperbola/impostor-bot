@@ -41,7 +41,7 @@ class Config:
 		self.ensure_file()
 
 		with open(CFG_PATH, "w") as file:
-			file.write(json.dumps(self._config, sort_keys=True, indent=4))
+			file.write(json.dumps(self._config, sort_keys=True, indent="\t"))
 			file.close()
 
 	def load(self) -> bool:
