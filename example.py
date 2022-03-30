@@ -255,6 +255,9 @@ async def eval_e(*args):
 async def command_prompt():
 	await client.wait_until_ready()
 	
+	from time import sleep
+	sleep(.3)
+
 	while True:
 		await isn_context.parse(await ainput(">"))
 
@@ -277,24 +280,24 @@ def main():
 	
 	isn_context.register('break', client.close)
 
-	isn_context.register('unam', username)
+	isn_context.register('uname', username)
 	
 	isn_context.register('setch', set_channel)
 	isn_context.register('msg', sendmsg)
 	isn_context.register('unmsg', delete_last)
-	isn_context.register('rmsg', delete_num)
-	isn_context.register('his', msg_history)
+	isn_context.register('delmsg', delete_num)
+	isn_context.register('chatlog', msg_history)
 
 	isn_context.register('join', join_channel)
-	isn_context.register('leavall', leave_all_voice_channels)
-	isn_context.register('leavc', leave_voice_channel)
+	isn_context.register('leaveall', leave_all_voice_channels)
+	isn_context.register('leave', leave_voice_channel)
 	isn_context.register('play', audio_fs)
-	isn_context.register('playw', audio_web)
+	isn_context.register('playweb', audio_web)
 	isn_context.register('stop', stop_audio)
-	isn_context.register('paus', pause_audio)
-	isn_context.register('rsum', resume_audio)
+	isn_context.register('pause', pause_audio)
+	isn_context.register('resume', resume_audio)
 
-	isn_context.register('cachc', clear_cache)
+	isn_context.register('clrcache', clear_cache)
 
 	notice(f'Successfully registered {len(isn_context.cmds())} commands. Type "help" to see a full list of instructions')
 	print("Connecting...")
