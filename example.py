@@ -21,7 +21,7 @@ async def check_channel():
 async def check_text_channel():
 	if await check_channel(): return True
 
-	if not hasattr(current_channel, 'send'):
+	if not hasattr(current_channel, 'send') and not hasattr(current_channel, 'history'):
 		error('Current channel is not a text channel')
 		return True
 
