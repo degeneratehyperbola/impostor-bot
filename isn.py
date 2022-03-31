@@ -1,10 +1,5 @@
 from helpers import *
 from typing import Callable as Cmd
-from inspect import iscoroutinefunction as is_async
-from inspect import signature as Signature
-from inspect import Parameter
-from inspect import _empty as AnyType
-from shlex import split as posix_split
 
 ### IMPOSTOR SCRIPT NOTATION ###
 
@@ -21,8 +16,44 @@ class Context:
 	def register(self, alias: str, cmd: Cmd):
 		self._cmd_reg[alias] = cmd
 	
-	#executes a command
-	async def exec(self, alias: str, *args):
+	# Retrieves a variables value
+	async def getvar(self, alias: str):
+		val = None
+
+		try:
+			val = self._var_reg[alias]
+		except KeyError:
+			error(f'Error: "{alias}" was not recognised as a variable!')
+			return
+		except Exception as e:
+			error(f'Internal error occured while retrieving variable "{alias}"!')
+			error(e)
+			return
+		
+		return val
+	
+	# Assigns a value to or declares a variable
+	async def setvar(self, alias: str, val: str):
+		if val is None:
+			error(f'Error: cannot assign VOID to "{alias}"! Variable remains unchanged.')
+			return
+
+		self._var_reg[alias] = val
+
+	# Parses and executes code one line at a time
+	async def interpret_line(self, line: str):
+		from inspect import iscoroutinefunction as is_async
+		from inspect import signature as Signature
+		from inspect import Parameter
+		from inspect import _empty as AnyType
+		from shlex import split as posix_split
+
+		words = posix_split(line)
+		if not len(words): return
+		
+		alias = words[0]
+		args = words[1:]
+		
 		fn = None
 		
 		# Search for a command with the given alias
@@ -32,16 +63,14 @@ class Context:
 			error(f'Error: "{alias}" was not recognised as a command!')
 			return
 		except Exception as e:
-			error(f'Unknown error occured while indexing command "{alias}"!')
+			error(f'Internal error occured while indexing command "{alias}"!')
 			error(e)
 			return
 		
-		res = None
-		sig = Signature(fn)
-		args_cast = list(args)
-		i = 0
-		
 		# Cast all args based on the command's function signature
+		sig = Signature(fn)
+		args_cast = list(args[:len(sig.parameters)])
+		i = 0
 		for param_name in sig.parameters.keys():
 			param = sig.parameters[param_name]
 			type_ = param.annotation
@@ -62,7 +91,7 @@ class Context:
 							error(f'Error: unable to convert "{args_var[ii]}" to type "{type_.__name__}"! Variable argument {i + ii} : "{param_name}"')
 							return
 						except Exception as e:
-							error(f'Unknown error occured while converting variable arguments for command "{alias}"!')
+							error(f'Internal error occured while converting variable arguments for command "{alias}"!')
 							error(e)
 							return
 				else:
@@ -72,58 +101,31 @@ class Context:
 						if param.default is Parameter.empty:
 							error(f'Error: missing argument "{param_name}" of type "{type_.__name__}"!')
 							return
-						
 						break
 					except ValueError:
 						error(f'Error: unable to convert "{args[i]}" to type "{type_.__name__}"! Argument {i} : "{param_name}".')
 						return
 					except Exception as e:
-						error(f'Unknown error occured while converting arguments for command "{alias}"!')
+						error(f'Internal error occured while converting arguments for command "{alias}"!')
 						error(e)
 						return
 			i += 1
 		
-		# Execute command
+		# Execute the command
+		res = None
 		try:
 			if is_async(fn):
 				res = await fn(*args_cast)
 			else:
 				res = fn(*args_cast)
-		except TypeError:
-			error('Error: too many or invalid argument(s)!')
-			return
 		except Exception as e:
-			error(f'Unknown error occured while executing command "{alias}"!')
+			error(f'Internal error occured while executing command "{alias}"!')
 			error(e)
 			return
 		
 		return res
-	
-	# Retrieves a variables value
-	async def getvar(self, alias: str):
-		val = None
 
-		try:
-			val = self._var_reg[alias]
-		except KeyError:
-			error(f'Error: "{alias}" was not recognised as a variable!')
-			return
-		except Exception as e:
-			error(f'Unknown error occured while retrieving variable "{alias}"!')
-			error(e)
-			return
-		
-		return val
-	
-	# Assigns a value to or declares a variable
-	async def setvar(self, alias: str, val: str):
-		if val is None:
-			error(f'Error: cannot assign VOID to "{alias}"! Variable remains unchanged.')
-			return
-
-		self._var_reg[alias] = val
-
-	# Parses text into a command and a list of its arguments, also handles inline variables
+	# Parses text into a list of lines then interprets them
 	async def parse(self, text: str):
 		# TODO:
 		# - Comments with #
@@ -136,40 +138,16 @@ class Context:
 		# - Get property for any py object .......... Future me here. Das wicked niggster, hell, add a fucking eval operator
 		# - Call any py object's method ............. Future me here again. No words
 		
-		words = posix_split(text)
+		lines = text.split('\n')
+		if not len(lines): return
 		
-		if not len(words): return
-		
-		# No detours december
-		# Try this tho VVV
-		# detour = None
-		# try: detour = words.index('>', 1)
-		# except ValueError: pass
-		# *words[(detour + 1):]
-		
-		alias = words[0]
-		args = words[1:]
-		parsed_args = list()
-		
-		if len(args):
-			# Handle assigning and declaring vars
-			if args[0] == '=':
-				try:
-					await self.setvar(alias, args[1])
-				except IndexError:
-					error(f'Error: expected a value for variable "{alias}"!')
-				except Exception as e:
-					error(f'Unknown error occured while setting variable "{alias}"!')
-					error(e)
+		for line in lines:
+			# Strip a line of its comments
+			line_stripped = line
+			try:
+				line_stripped = line[:line.index('#')]
+			except:
+				pass
 
-				return
-
-			# Parse args
-			for arg in args:
-				# If an arg is marked with '@', treat as variable and get its value
-				if arg.startswith('@'):
-					parsed_args.append(await self.getvar(arg[1:]))
-				else:
-					parsed_args.append(arg)
-		
-		return await self.exec(alias, *parsed_args)
+			if not len(line_stripped): continue
+			await self.interpret_line(line_stripped)
