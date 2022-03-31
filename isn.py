@@ -131,6 +131,7 @@ class Context:
 		# - Scopes O_O powered by scoped_split()
 		# - Operations on variables O_O
 		# - Exception handling in the parsing process instead of executing process
+		# - Variable handling in the executing process instead of parsing process
 		# - Nigusi O_O
 		# - Get property for any py object .......... Future me here. Das wicked niggster, hell, add a fucking eval operator
 		# - Call any py object's method ............. Future me here again. No words

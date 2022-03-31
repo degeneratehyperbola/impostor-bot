@@ -13,12 +13,12 @@ This repository contains `example.py` file which might seem to be the example bu
 **Note: A bot token must be placed inside `config.json` file in the same directory in order for it to work**
 ```json
 {
-	"BotToken": "YOUR TOKEN HERE"
+  "BotToken": "YOUR TOKEN HERE"
 }
 ```
 
 ## Syntax
-A simple POSIX-like syntax with no super advanced stuff like dumps or nesting.
+A simple POSIX-like syntax with no super advanced stuff like detours or nesting.
 
 ```ps1
 <command> [argument1] [argument2] [argument3]...
