@@ -75,7 +75,7 @@ class Context:
 		
 		# Cast all args based on the command's function signature
 		sig = Signature(fn)
-		args_cast = args.copy() if sig.parameters.items()[-1].kind is Parameter.VAR_POSITIONAL else args.copy()[:len(sig.parameters)]
+		args_cast = args.copy()
 		i = 0
 		for param_name in sig.parameters.keys():
 			param = sig.parameters[param_name]
