@@ -3,6 +3,12 @@ from typing import Callable as Cmd
 
 ### IMPOSTOR SCRIPT NOTATION ###
 
+class VarIndexError(Exception): pass
+class VarAssignError(Exception): pass
+class CmdIndexError(Exception): pass
+class CastError(Exception): pass
+class ExecError(Exception): pass
+
 class Context:
 	_cmd_reg = {}
 	_var_reg = {}
@@ -23,20 +29,14 @@ class Context:
 		try:
 			val = self._var_reg[alias]
 		except KeyError:
-			error(f'Error: "{alias}" was not recognised as a variable!')
-			return
-		except Exception as e:
-			error(f'Internal error occured while retrieving variable "{alias}"!')
-			error(e)
-			return
+			raise VarIndexError(f'"{alias}" was not recognised as a variable!')
 		
 		return val
 	
 	# Assigns a value to or declares a variable
 	async def setvar(self, alias: str, val: str):
 		if val is None:
-			error(f'Error: cannot assign VOID to "{alias}"! Variable remains unchanged.')
-			return
+			raise VarAssignError(f'cannot assign VOID to "{alias}"! Variable remains unchanged.')
 
 		self._var_reg[alias] = val
 
@@ -60,12 +60,7 @@ class Context:
 		try:
 			fn = self._cmd_reg[alias]
 		except KeyError:
-			error(f'Error: "{alias}" was not recognised as a command!')
-			return
-		except Exception as e:
-			error(f'Internal error occured while indexing command "{alias}"!')
-			error(e)
-			return
+			raise CmdIndexError(f'"{alias}" was not recognised as a command!')
 		
 		# Cast all args based on the command's function signature
 		sig = Signature(fn)
@@ -88,27 +83,20 @@ class Context:
 						try:
 							args_cast[i + ii] = type_(args_var[ii])
 						except ValueError:
-							error(f'Error: unable to convert "{args_var[ii]}" to type "{type_.__name__}"! Variable argument {i + ii} : "{param_name}"')
-							return
+							raise CastError(f'Unable to convert "{args_var[ii]}" to type "{type_.__name__}"! Variable argument {i + ii} : "{param_name}"')
 						except Exception as e:
-							error(f'Internal error occured while converting variable arguments for command "{alias}"!')
-							error(e)
-							return
+							raise CastError(f'Internal error occured while converting variable arguments for command "{alias}"!\n' + str(e))
 				else:
 					try:
 						args_cast[i] = type_(args_cast[i])
 					except IndexError:
 						if param.default is Parameter.empty:
-							error(f'Error: missing argument "{param_name}" of type "{type_.__name__}"!')
-							return
+							raise CastError(f'Missing argument "{param_name}" of type "{type_.__name__}"!')
 						break
 					except ValueError:
-						error(f'Error: unable to convert "{args[i]}" to type "{type_.__name__}"! Argument {i} : "{param_name}".')
-						return
+						raise CastError(f'Unable to convert "{args[i]}" to type "{type_.__name__}"! Argument {i} : "{param_name}".')
 					except Exception as e:
-						error(f'Internal error occured while converting arguments for command "{alias}"!')
-						error(e)
-						return
+						raise CastError(f'Internal error occured while converting arguments for command "{alias}"!\n' + str(e))
 			i += 1
 		
 		# Execute the command
@@ -119,9 +107,7 @@ class Context:
 			else:
 				res = fn(*args_cast)
 		except Exception as e:
-			error(f'Internal error occured while executing command "{alias}"!')
-			error(e)
-			return
+			raise ExecError(f'Internal error occured while executing command "{alias}"!\n' + str(e))
 		
 		return res
 
@@ -150,4 +136,5 @@ class Context:
 				pass
 
 			if not len(line_stripped): continue
+
 			await self.interpret_line(line_stripped)

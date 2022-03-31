@@ -259,7 +259,10 @@ async def command_prompt():
 	sleep(.3)
 
 	while True:
-		await isn_context.parse(await ainput('>'))
+		try:
+			await isn_context.parse(await ainput('>'))
+		except Exception as e:
+			error(e)
 
 def main():
 	global client
