@@ -31,7 +31,7 @@ Grouping is done with quotes:
 # Parsed as: ['argument ... still the same argument', 'now goes the next one']
 ```
 
-And escaping with a `\` (backslash) like so:
+And escaping with a backslash `\` like so:
 ```ps1
 <command> "i can have \"funny\" symbols in here, including the \\"
 
@@ -42,7 +42,7 @@ There is also a support for variables but, currently, no way of setting them usi
 
 Set an existing variable or declare a new one:
 ```ps1
-<variable_name> = <value>
+set <variable_name> <value>
 ```
 
 Retrieve the value from a declared variable:
@@ -50,7 +50,10 @@ Retrieve the value from a declared variable:
 <command> [arguments] @<variable_name> [arguments]...
 ```
 
-Comments are not yet implemented.
+Comments are done with a hash `#` character:
+```ps1
+# This is a comment and will be ignored
+```
 
 ## Examples
 Read the chat for signs of life (last 10 messages):
