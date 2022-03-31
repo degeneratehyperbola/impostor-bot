@@ -21,7 +21,7 @@ async def check_channel():
 async def check_text_channel():
 	if await check_channel(): return True
 
-	if not isinstance(current_channel, discord.TextChannel) and not issubclass(current_channel, discord.abc.PrivateChannel):
+	if not hasattr(current_channel, 'send'):
 		error('Current channel is not a text channel')
 		return True
 
