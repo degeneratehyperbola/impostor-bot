@@ -301,6 +301,9 @@ def main():
 	isn_context.register('pause', pause_audio)
 	isn_context.register('resume', resume_audio)
 
+	isn_context.register('set', isn_context.setvar)
+	isn_context.register('get', isn_context.getvar)
+
 	isn_context.register('clrcache', clear_cache)
 
 	notice(f'Successfully registered {len(isn_context.cmds())} commands. Type "help" to see a full list of instructions')
