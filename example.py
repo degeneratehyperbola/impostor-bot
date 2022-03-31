@@ -47,12 +47,12 @@ async def check_voice_client():
 async def clear_cache():
 	from os import remove
 	try:
-		remove("cache")
+		remove('cache')
 	except Exception as e:
 		error(e)
 		return
 
-	notice("Cache successfully cleared")
+	notice('Cache successfully cleared')
 
 ### COMMANDS ###
 
@@ -139,18 +139,18 @@ def play_audio(path: str):
 	try:
 		current_channel.guild.voice_client.play(discord.FFmpegPCMAudio(source=path))
 	except discord.ClientException:
-		error("Already playing audio")
+		error('Already playing audio')
 		return
 
 def download_play_audio(url: str):
 	from youtube_dl import YoutubeDL
 	path = None
-	with YoutubeDL({"outtmpl": "cache\%(title)s-%(id)s.%(ext)s", "format": "bestaudio", "nooverwrites": False, "quiet": True, "noplaylist": True}) as ytdl:
+	with YoutubeDL({'outtmpl': 'cache\%(title)s-%(id)s.%(ext)s', 'format': 'bestaudio', 'nooverwrites': True, 'quiet': True, 'noplaylist': True}) as ytdl:
 		try:
 			result = ytdl.extract_info(url)
 			path = ytdl.prepare_filename(result)
 		except:
-			error("Unable to download audio")
+			error('Unable to download audio')
 			return
 		
 	play_audio(path)
@@ -225,7 +225,7 @@ async def msg_history(count: int = 5):
 	msgs.reverse()
 	
 	if not len(msgs):
-		notice("No messages in record")
+		notice('No messages in record')
 		return
 	
 	try:
@@ -259,7 +259,7 @@ async def command_prompt():
 	sleep(.3)
 
 	while True:
-		await isn_context.parse(await ainput(">"))
+		await isn_context.parse(await ainput('>'))
 
 def main():
 	global client
@@ -301,7 +301,7 @@ def main():
 	isn_context.register('clrcache', clear_cache)
 
 	notice(f'Successfully registered {len(isn_context.cmds())} commands. Type "help" to see a full list of instructions')
-	print("Connecting...")
+	print('Connecting...')
 
 	config.load()
 
@@ -310,9 +310,9 @@ def main():
 	try:
 		client.loop.run_until_complete(client.start(config[CFG_TOKEN]))
 	except TypeError or KeyError:
-		error(f"Missing bot token in {CFG_PATH}")
+		error(f'Missing bot token in {CFG_PATH}')
 	except discord.LoginFailure:
-		error(f"Invalid bot token in {CFG_PATH}")
+		error(f'Invalid bot token in {CFG_PATH}')
 	except KeyboardInterrupt:
 		client.loop.run_until_complete(client.close())
 	except:
