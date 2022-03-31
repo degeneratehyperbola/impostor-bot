@@ -1,6 +1,17 @@
 from helpers import *
 from typing import Callable as Cmd
 
+# TODO:
+# Comments with # (DONE)
+# Exception handling in the parsing process instead of executing process (DONE)
+# Variable handling in the executing process instead of parsing process (DONE)
+# Get property for any py object .......... Future me here. Das wicked niggster, hell, add a fucking eval operator (DONE)
+# Call any py object's method ............. Future me here again. No words (DONE)
+# Detours with > or perhaps with separate command (idk, more of a frontend task)
+# Scopes O_O powered by scoped_split()
+# Operations on variables O_O
+# Nigusi O_O
+
 ### IMPOSTOR SCRIPT NOTATION ###
 
 class VarIndexError(Exception): pass
@@ -34,11 +45,11 @@ class Context:
 		return val
 	
 	# Assigns a value to or declares a variable
-	async def setvar(self, alias: str, val: str):
-		if val is None:
+	async def setvar(self, alias: str, value: str):
+		if value is None:
 			raise VarAssignError(f'cannot assign VOID to "{alias}"! Variable remains unchanged.')
 
-		self._var_reg[alias] = val
+		self._var_reg[alias] = value
 
 	# Parses and executes code one line at a time
 	async def interpret_line(self, line: str):
@@ -48,7 +59,7 @@ class Context:
 		from inspect import _empty as AnyType
 		from shlex import split as posix_split
 
-		words = posix_split(line)
+		words = posix_split(line, True, True)
 		if not len(words): return
 		
 		alias = words[0]
@@ -112,29 +123,10 @@ class Context:
 		return res
 
 	# Parses text into a list of lines then interprets them
-	async def parse(self, text: str):
-		# TODO:
-		# - Comments with #
-		# - Detours with > or perhaps with separate command (idk, more of a frontend task)
-		# - Scopes O_O powered by scoped_split()
-		# - Operations on variables O_O
-		# - Exception handling in the parsing process instead of executing process
-		# - Variable handling in the executing process instead of parsing process
-		# - Nigusi O_O
-		# - Get property for any py object .......... Future me here. Das wicked niggster, hell, add a fucking eval operator
-		# - Call any py object's method ............. Future me here again. No words
-		
+	async def parse(self, text: str):		
 		lines = text.split('\n')
 		if not len(lines): return
 		
 		for line in lines:
-			# Strip a line of its comments
-			line_stripped = line
-			try:
-				line_stripped = line[:line.index('#')]
-			except:
-				pass
-
-			if not len(line_stripped): continue
-
-			await self.interpret_line(line_stripped)
+			if not len(line): continue
+			await self.interpret_line(line)
