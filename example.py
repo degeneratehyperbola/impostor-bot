@@ -321,6 +321,8 @@ def main():
 		error(f'Invalid bot token in {CFG_PATH}')
 	except KeyboardInterrupt:
 		client.loop.run_until_complete(client.close())
+	except:
+		pass
 
 if __name__ == '__main__':
 	main()
