@@ -121,16 +121,31 @@ async def leave_voice_channel(channel_guild_id: int):
 
 	await guild.voice_client.disconnect()
 
+audio_stack = []
+
+def process_audio_stack(e):
+	if len(audio_stack):
+		next_audio = audio_stack[0]
+		del audio_stack[0]
+		play_audio(next_audio)
+
 def play_audio(path: str):
 	from os.path import exists
 	if not exists(path):
 		error(f'Could not find {path}')
 		return
 
+	vc = current_channel.guild.voice_client
+
+	if vc.is_playing():
+		notice(f'Added {path} to the queue')
+		audio_stack.append(path)
+		return
+
 	try:
-		current_channel.guild.voice_client.play(discord.FFmpegPCMAudio(source=path))
-	except discord.ClientException:
-		error('Already playing audio')
+		vc.play(discord.FFmpegPCMAudio(source=path), after=process_audio_stack)
+	except Exception as e:
+		error(e)
 		return
 
 def download_play_audio(url: str):
