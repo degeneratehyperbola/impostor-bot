@@ -15,42 +15,31 @@ async def check_channel():
 		try:
 			await set_channel(config[CFG_CHANNELID])
 		except:
-			error('Unknown current channel. Use "setch" command to set a new current channel')
-			return True
+			raise Exception('Unknown current channel. Use "setch" command to set a new current channel')
 
 async def check_text_channel():
-	if await check_channel(): return True
+	await check_channel()
 
 	if not hasattr(current_channel, 'send') and not hasattr(current_channel, 'history'):
-		error('Current channel is not a text channel')
-		return True
+		raise Exception('Current channel is not a text channel')
 
 async def check_voice_channel():
-	if await check_channel(): return True
+	await check_channel()
 	
 	if not isinstance(current_channel, discord.VoiceChannel):
-		error('Current channel is not a voice channel')
-		return True
+		raise Exception('Current channel is not a voice channel')
 
 async def check_voice_client():
-	if await check_voice_channel(): return True
+	await check_voice_channel()
 
 	if not current_channel.guild.voice_client:
-		try:
-			await join_channel()
-		except:
-			error(f'Unknown error occured while connecting to "{current_channel.guild.name}"')
-			return
+		await join_channel()
 
 ### GARBAGE COLLECTOR ###
 
 async def clear_cache():
 	from os import remove
-	try:
-		remove('cache')
-	except Exception as e:
-		error(e)
-		return
+	remove('cache')
 
 	notice('Cache successfully cleared')
 
@@ -75,8 +64,7 @@ async def set_channel(channel_user_id: int):
 				try:
 					channel = await client.fetch_user(channel_user_id)
 				except discord.NotFound:
-					error('Invalid channel/user ID!')
-					return
+					raise Exception('Invalid channel/user ID!')
 
 	global current_channel
 	current_channel = channel
@@ -87,17 +75,17 @@ async def set_channel(channel_user_id: int):
 	config.save()
 
 async def sendmsg(*msgs: str):
-	if await check_text_channel(): return
+	await check_text_channel()
 
 	await current_channel.send(' '.join(msgs))
 
 async def join_channel():
-	if await check_voice_channel(): return
+	await check_voice_channel()
 
 	try:
 		await current_channel.connect()
 	except discord.ClientException:
-		error('Unable to connect! Voice client is already connected')
+		raise Exception('Unable to connect! Voice client is already connected')
 
 async def leave_all_voice_channels():
 	left = 0
@@ -123,15 +111,13 @@ async def leave_voice_channel(channel_guild_id: int):
 				try:
 					guild = await client.fetch_guild(channel_guild_id)
 				except discord.NotFound:
-					error('Invalid channel/guild ID!')
-					return
+					raise Exception('Invalid channel/guild ID!')
 	
 	if not guild:
 		guild = channel.guild
 
 	if not guild.voice_client:
-		error(f'Not connected in "{guild.name}"')
-		return
+		raise Exception(f'Not connected in "{guild.name}"')
 
 	await guild.voice_client.disconnect()
 
@@ -155,33 +141,32 @@ def download_play_audio(url: str):
 			result = ytdl.extract_info(url)
 			path = ytdl.prepare_filename(result)
 		except:
-			error('Unable to download audio')
-			return
+			raise Exception('Unable to download audio')
 		
 	play_audio(path)
 
 async def audio_fs(path: str):
-	if await check_voice_client(): return
+	await check_voice_client()
 
 	Thread(target=play_audio, args=(path,)).start()
 
 async def audio_web(url: str):
-	if await check_voice_client(): return
+	await check_voice_client()
 
 	Thread(target=download_play_audio, args=(url,)).start()
 
 async def stop_audio():
-	if await check_voice_client(): return
+	await check_voice_client()
 	
 	current_channel.guild.voice_client.stop()
 
 async def pause_audio():
-	if await check_voice_client(): return
+	await check_voice_client()
 
 	current_channel.guild.voice_client.pause()
 
 async def resume_audio():
-	if await check_voice_client(): return
+	await check_voice_client()
 
 	current_channel.guild.voice_client.resume()
 
@@ -192,13 +177,12 @@ async def username(user_id: int):
 		try:
 			user = await client.fetch_user(user_id)
 		except discord.NotFound:
-			error('Invalid user ID!')
-			return
+			raise Exception('Invalid user ID!')
 	
 	return f'{user.name}#{user.discriminator}'
 
 async def delete_num(count: int = 5):
-	if await check_text_channel(): return
+	await check_text_channel()
 
 	deleted = 0
 	
@@ -209,36 +193,34 @@ async def delete_num(count: int = 5):
 	notice(f'Successfully deleted {deleted} message(s)')
 
 async def delete_last():
-	if await check_text_channel(): return
+	await check_text_channel()
 
 	message = None
 	
 	try:
 		message = await current_channel.history(limit=100).find(lambda m: m.author.id == client.user.id)
 	except:
-		error('Last message too far or not found!')
-		return
+		raise Exception('Last message too far or not found!')
 	
 	await message.delete()
 	notice('Successfully deleted 1 message')
 
 async def msg_history(count: int = 5):
-	if await check_text_channel(): return
+	await check_text_channel()
 
 	last = None
 	msgs = await current_channel.history(limit = count).flatten()
 	msgs.reverse()
 	
 	if not len(msgs):
-		notice('No messages in record')
-		return
+		raise Exception('No messages in record')
 	
 	try:
 		for m in msgs:
 			user = await username(m.author.id)
 			
 			if last != user:
-				notice(user, '\t', m.created_at)
+				notice(user, '\t\t', m.created_at)
 			
 			echo(m.content)
 			
@@ -250,10 +232,7 @@ async def nop(*args):
 	pass
 
 async def eval_e(*args):
-	try:
-		eval(' '.join(args))
-	except Exception as e:
-		error(e)
+	eval(' '.join(args))
 
 ### ENTRY POINT ###
 
