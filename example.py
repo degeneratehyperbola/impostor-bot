@@ -129,6 +129,8 @@ def process_audio_stack(e):
 		next_audio = audio_stack[0]
 		del audio_stack[0]
 		play_audio(next_audio)
+	else:
+		notice('Reached the end of the audio queue')
 
 def play_audio(path: str):
 	from os.path import exists
