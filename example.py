@@ -1,5 +1,6 @@
 from client import *
 from config import *
+from helpers import *
 from isn import *
 from threading import Thread
 
@@ -256,7 +257,14 @@ async def nop(*args):
 async def eval_e(*args):
 	eval(' '.join(args))
 
-### ENTRY POINT ###
+### COMMAND PROMPT ###
+
+async def ainput(prompt: str = '') -> str:
+	import asyncio
+	from concurrent.futures import ThreadPoolExecutor
+
+	with ThreadPoolExecutor(1) as executor:
+		return await asyncio.get_event_loop().run_in_executor(executor, input, prompt)
 
 async def command_prompt():
 	await client.wait_until_ready()
@@ -269,6 +277,8 @@ async def command_prompt():
 			await isn_context.parse(await ainput('>'))
 		except Exception as e:
 			error(e)
+
+### ENTRY POINT ###
 
 def main():
 	global client

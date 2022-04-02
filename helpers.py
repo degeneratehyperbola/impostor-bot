@@ -1,10 +1,5 @@
 from ctypes import *
-import sys, asyncio
-from concurrent.futures import ThreadPoolExecutor
-
-async def ainput(prompt: str = '') -> str:
-	with ThreadPoolExecutor(1) as executor:
-		return await asyncio.get_event_loop().run_in_executor(executor, input, prompt)
+import sys
 
 __CSI = '\033['
 
