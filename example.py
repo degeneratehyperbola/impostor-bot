@@ -136,6 +136,11 @@ async def leave_voice_channel(channel_guild_id: int):
 	await guild.voice_client.disconnect()
 
 def play_audio(path: str):
+	from os.path import exists
+	if not exists(path):
+		error(f'Could not find {path}')
+		return
+
 	try:
 		current_channel.guild.voice_client.play(discord.FFmpegPCMAudio(source=path))
 	except discord.ClientException:
