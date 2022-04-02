@@ -173,6 +173,12 @@ async def audio_web(url: str):
 
 async def stop_audio():
 	await check_voice_client()
+
+	audio_stack.clear()
+	skip_audio()
+
+async def skip_audio():
+	await check_voice_client()
 	
 	current_channel.guild.voice_client.stop()
 
@@ -298,6 +304,7 @@ def main():
 	isn_context.register('play', audio_fs)
 	isn_context.register('playweb', audio_web)
 	isn_context.register('stop', stop_audio)
+	isn_context.register('skip', skip_audio)
 	isn_context.register('pause', pause_audio)
 	isn_context.register('resume', resume_audio)
 
