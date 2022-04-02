@@ -18,7 +18,6 @@ class VarIndexError(Exception): pass
 class VarAssignError(Exception): pass
 class CmdIndexError(Exception): pass
 class CastError(Exception): pass
-class ExecError(Exception): pass
 
 class Context:
 	_cmd_reg = {}
@@ -112,13 +111,10 @@ class Context:
 		
 		# Execute the command
 		res = None
-		try:
-			if is_async(fn):
-				res = await fn(*args_cast)
-			else:
-				res = fn(*args_cast)
-		except Exception as e:
-			raise ExecError(f'Internal error occured while executing command "{alias}"!\n' + str(e))
+		if is_async(fn):
+			res = await fn(*args_cast)
+		else:
+			res = fn(*args_cast)
 		
 		return res
 
