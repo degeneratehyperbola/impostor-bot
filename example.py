@@ -176,7 +176,7 @@ async def stop_audio():
 	await check_voice_client()
 
 	audio_stack.clear()
-	skip_audio()
+	current_channel.guild.voice_client.stop()
 
 async def skip_audio():
 	await check_voice_client()
