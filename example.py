@@ -140,8 +140,9 @@ def download_play_audio(url: str):
 		try:
 			result = ytdl.extract_info(url)
 			path = ytdl.prepare_filename(result)
-		except:
-			raise Exception('Unable to download audio')
+		except Exception as e:
+			error(e)
+			return
 		
 	play_audio(path)
 
