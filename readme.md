@@ -17,16 +17,30 @@ This repository contains `example.py` file which might seem to be the example bu
 }
 ```
 
-## Syntax
+The `example.py` file contains the bot's initialization code (e.g. connecting the bot), most of the instructions definitions, the command prompt itself and consequent keyboard interupts handling and such. You can add custom own commands there since most of them are there.
+
+## What is a command and how to add one
+A command/instruction is a python function that executes when the command is invoked and an alias that associates with it and using which the command is indexed. The function can be either generic or asynchronous.
+
+```py
+list_of_cmds = {'help': help_fn, 'join': join_channel_fn}
+```
+
+You can add new instructions and make other aliases for existing ones from outside of the ISN context like so:
+```py
+isn_context.register('alias', function)
+```
+
+## Syntax and interpreter features
 A simple POSIX-like syntax with no super advanced stuff like detours or nesting.
 
 ```ps1
 <command> [argument1] [argument2] [argument3]...
 ```
 
-Grouping is done with quotes:
+Grouping is done with quotes (`"` and `'`):
 ```ps1
-<command> "argument ... still the same argument" "now goes the next one"
+<command> "argument ... still the same argument" 'now goes the next one'
 
 # Parsed as: ['argument ... still the same argument', 'now goes the next one']
 ```
@@ -55,7 +69,7 @@ Comments are done with a hash `#` character:
 # This is a comment and will be ignored
 ```
 
-## Examples
+## Usage examples
 Read the chat for signs of life (last 10 messages):
 ```ps1
 setch 746316046616625192
