@@ -17,10 +17,10 @@ This repository contains `example.py` file which might seem to be the example bu
 }
 ```
 
-The `example.py` file contains the bot's initialization code (e.g. connecting the bot), most of the instructions definitions, the command prompt itself and consequent keyboard interupts handling and such. You can add custom own commands there since most of them are there.
+The `example.py` file contains the bot's initialization code (e.g. connecting the bot), most of the instructions definitions, the command prompt itself and consequent keyboard interupts handling and such. You can add custom commands in `example.py` since all of them are registered there.
 
 ## What is a command and how to add one
-A command/instruction is a Python function that executes when the command is invoked and an alias that associates with it and using which the command is indexed. The function can be either generic or asynchronous.
+A command/instruction is a Python function that executes when the command is invoked and an alias associated with it and using which the command is indexed. The function can be either generic or asynchronous.
 
 ```py
 list_of_cmds = {'help': help_fn, 'join': join_channel_fn}
