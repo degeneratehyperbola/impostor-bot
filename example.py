@@ -275,7 +275,7 @@ async def command_prompt():
 	await client.wait_until_ready()
 	
 	from time import sleep
-	sleep(.3)
+	sleep(.35)
 
 	while True:
 		try:
