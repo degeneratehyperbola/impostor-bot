@@ -6,10 +6,13 @@ from typing import Callable as Cmd
 # Variable handling in the executing process instead of parsing process (DONE)
 # Get property for any py object .......... Future me here. Das wicked niggster, hell, add a fucking eval operator (DONE)
 # Call any py object's method ............. Future me here again. No words (DONE)
+# Nigusi O_O (DONE)
 # Detours with > or perhaps with separate command (idk, more of a frontend task)
 # Scopes O_O powered by scoped_split()
 # Operations on variables O_O
-# Nigusi O_O
+# Custom, human comprehensible fucking split function
+# Bring back variable getter
+# Variable setting from commands that return a value
 
 ### IMPOSTOR SCRIPT NOTATION ###
 

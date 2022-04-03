@@ -4,6 +4,9 @@ from helpers import *
 from isn import *
 from threading import Thread
 
+# TODO:
+# Command prompt always on the bottom
+
 isn_context = Context()
 config = Config()
 client = None
