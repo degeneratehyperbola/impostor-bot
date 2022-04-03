@@ -1,5 +1,5 @@
 from typing import Coroutine, Generator
-from helpers import *
+from log import *
 import discord
 
 class Client(discord.Client):

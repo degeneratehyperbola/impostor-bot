@@ -1,6 +1,6 @@
 from client import *
 from config import *
-from helpers import *
+from log import *
 from isn import *
 from threading import Thread
 
@@ -41,7 +41,7 @@ async def check_voice_client():
 
 ### GARBAGE COLLECTOR ###
 
-async def clear_cache():
+def clear_cache():
 	from os import remove
 	remove('cache')
 
@@ -49,7 +49,7 @@ async def clear_cache():
 
 ### COMMANDS ###
 
-async def cmdlist(*msgs: str):
+def cmdlist(*msgs: str):
 	bold('List of registered commands')
 	
 	for key in isn_context.cmds().keys():
@@ -256,10 +256,10 @@ async def msg_history(count: int = 5):
 	except Exception as e:
 		error(e)
 
-async def nop(*args):
+def nop(*args):
 	pass
 
-async def eval_e(*args):
+def eval_e(*args):
 	eval(' '.join(args))
 
 ### COMMAND PROMPT ###
@@ -279,14 +279,13 @@ async def command_prompt():
 
 	while True:
 		try:
-			await isn_context.parse(await ainput('>'))
+			await isn_context.parse(await ainput('> '))
 		except Exception as e:
 			error(e)
 
 ### ENTRY POINT ###
 
-def main():
-	global client
+if __name__ == '__main__':
 	client = Client()
 	
 	isn_context.register('help', cmdlist)
@@ -329,7 +328,7 @@ def main():
 	isn_context.register('clrcache', clear_cache)
 
 	notice(f'Successfully registered {len(isn_context.cmds())} commands. Type "help" to see a full list of instructions')
-	print('Connecting...')
+	echo('Connecting...')
 
 	config.load()
 
@@ -345,6 +344,3 @@ def main():
 		client.loop.run_until_complete(client.close())
 	except:
 		pass
-
-if __name__ == '__main__':
-	main()
