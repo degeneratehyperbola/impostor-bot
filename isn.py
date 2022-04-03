@@ -21,6 +21,67 @@ class VarAssignError(Exception): pass
 class CmdIndexError(Exception): pass
 class CastError(Exception): pass
 
+def split(text: str, delimiters: str = ' \t', quotes: str = '\"\'', comments: str = '#', escapes: str = '\\') -> list:
+	buffer = []
+
+	everything = delimiters + quotes + escapes
+	for c in everything:
+		if everything.count(c) > 1:
+			raise ValueError('Either delimiters, quotes or escapes overlap.')
+
+	escape_next = ''
+	word = ''
+	expect_quote = ''
+	for c in text:
+		if not escape_next:
+			# Self explanatory
+			if c in comments:
+				break
+
+			# Mark escaping
+			if c in escapes:
+				escape_next = c
+				continue
+
+			# Handle grouping
+			if c == expect_quote:
+				expect_quote = ''
+				# Interpret empty quotes as an empty string
+				if not len(word):
+					buffer.append('')
+				continue
+			elif c in quotes and not expect_quote:
+				expect_quote = c
+				continue
+
+		# Restore escape character if not used
+		def needs_escaping(c):
+			if c in escapes: return True
+			if c == expect_quote: return True
+			elif c in quotes and not expect_quote: return True
+
+		if not needs_escaping(c):
+			word += escape_next
+
+		escape_next = ''
+
+		# Lexical split
+		if c in delimiters and len(word) and not expect_quote:
+			buffer.append(word)
+			word = ''
+			continue
+		elif not c in delimiters or expect_quote:
+			word += c
+			continue
+
+	if expect_quote:
+		raise SyntaxError(f'Expected closing {expect_quote}.')
+
+	if len(word):
+		buffer.append(word)
+
+	return buffer
+
 class Context:
 	_cmd_reg = {}
 	_var_reg = {}
@@ -58,9 +119,8 @@ class Context:
 		from inspect import signature as Signature
 		from inspect import Parameter
 		from inspect import _empty as AnyType
-		from shlex import split as posix_split
 
-		words = posix_split(line, True, True)
+		words = split(line)
 		if not len(words): return
 		
 		alias = words[0]
@@ -106,7 +166,7 @@ class Context:
 							raise CastError(f'Missing argument "{param_name}" of type "{type_.__name__}"!')
 						break
 					except ValueError:
-						raise CastError(f'Unable to convert "{args[i]}" to type "{type_.__name__}"! Argument {i} : "{param_name}".')
+						raise CastError(f'Unable to convert "{args[i]}" to type "{type_.__name__}"! Parameter {i} : "{param_name}".')
 					except Exception as e:
 						raise CastError(f'Internal error occured while converting arguments for command "{alias}"!\n' + str(e))
 			i += 1
