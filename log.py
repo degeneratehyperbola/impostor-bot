@@ -1,10 +1,11 @@
+from ast import arg
 from sys import stdout
 from threading import Lock
 
 __ESC = '\033'
 __CSI = f'{__ESC}['
 
-def cur_pos(row = 1, col = 1):
+def cur_pos(row: int = 1, col: int = 1):
 	stdout.write(f'{__CSI}{row};{col}H')
 
 def clear_line():
@@ -16,24 +17,24 @@ def clear(scroll: bool = False):
 		stdout.write(f'{__CSI}3J')
 	stdout.write(f'{__CSI}1;1H')
 
-def echo(*args, sep: str = ' ', end: str = '\n'):
+def echo(*args: str, sep: str = ' ', end: str = '\n'):
 	stdout.write(f'{__CSI}0m')
-	stdout.write(sep.join(args))
+	stdout.write(sep.join([str(i) for i in args]))
 	stdout.write(f'{end}')
 
-def error(*args, sep: str = ' ', end: str = '\n'):
+def error(*args: str, sep: str = ' ', end: str = '\n'):
 	stdout.write(f'{__CSI}41;93m')
-	stdout.write(sep.join(args))
+	stdout.write(sep.join([str(i) for i in args]))
 	stdout.write(f'{__CSI}0m{end}')
 
-def notice(*args, sep: str = ' ', end: str = '\n'):
+def notice(*args: str, sep: str = ' ', end: str = '\n'):
 	stdout.write(f'{__CSI}44;97m')
-	stdout.write(sep.join(args))
+	stdout.write(sep.join([str(i) for i in args]))
 	stdout.write(f'{__CSI}0m{end}')
 
-def bold(*args, sep: str = ' ', end: str = '\n'):
+def bold(*args: str, sep: str = ' ', end: str = '\n'):
 	stdout.write(f'{__CSI}7m')
-	stdout.write(sep.join(args))
+	stdout.write(sep.join([str(i) for i in args]))
 	stdout.write(f'{__CSI}0m{end}')
 
 # @operator
