@@ -114,7 +114,7 @@ class Context:
 		self._var_reg[alias] = value
 
 	# Parses and executes code one line at a time
-	async def interpret_line(self, line: str):
+	async def _interpret_line(self, line: str):
 		from inspect import iscoroutinefunction as is_async
 		from inspect import signature as Signature
 		from inspect import Parameter
@@ -180,11 +180,11 @@ class Context:
 		
 		return res
 
-	# Parses text into a list of lines then interprets them
-	async def parse(self, text: str):		
-		lines = text.split('\n')
+	# Splits text into a list of lines then interprets them
+	async def interpret(self, text: str):
+		lines = split(text, delimiters='\n', quotes='', comments='', escapes='')
 		if not len(lines): return
 		
 		for line in lines:
 			if not len(line): continue
-			await self.interpret_line(line)
+			await self._interpret_line(line)

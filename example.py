@@ -279,7 +279,7 @@ async def command_prompt():
 
 	while True:
 		try:
-			await isn_context.parse(await ainput('> '))
+			await isn_context.interpret(await ainput('> '))
 		except Exception as e:
 			error(e)
 
