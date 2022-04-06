@@ -93,7 +93,9 @@ setch 811264974184775691
 join
 playweb https://www.youtube.com/watch?v=MH1imROLPho&list=PLYZCCGiDf0qijxmpClFxZlVWWyzuwjy2y&index=1
 stop
-play "D:\Music\Bad Piggies Soundtrack.m4a"
+play "D:\Music\*.mp3"
+skip
+skip
 ```
 
 ## Instruction Set
