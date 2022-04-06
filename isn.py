@@ -74,11 +74,14 @@ def split(text: str, delimiters: str = ' \t', quotes: str = '\"\'', comments: st
 			word += c
 			continue
 
-	if expect_quote:
-		raise SyntaxError(f'Expected closing {expect_quote}.')
-
+	# Complete the data that wasn't processed in the main loop
+	word += escape_next
 	if len(word):
 		buffer.append(word)
+
+	# Just a compatibility feature
+	if expect_quote:
+		raise SyntaxError(f'Expected closing {expect_quote}.')
 
 	return buffer
 
