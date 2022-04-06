@@ -145,6 +145,12 @@ def list_audio_stack():
 	bold('Now playing')
 	echo(basename(now_playing))
 
+def shuffle_audio_stack():
+	from random import shuffle
+	shuffle(audio_stack)
+
+	notice('Shuffled the audio queue')
+
 def play_audio(path: str):
 	vc = current_vchannel.guild.voice_client
 
@@ -351,6 +357,7 @@ if __name__ == '__main__':
 	isn_context.register('pause', pause_audio)
 	isn_context.register('resume', resume_audio)
 	isn_context.register('aq', list_audio_stack)
+	isn_context.register('shuffle', shuffle_audio_stack)
 
 	isn_context.register('set', isn_context.setvar)
 	isn_context.register('get', isn_context.getvar)
