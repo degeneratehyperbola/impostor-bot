@@ -10,33 +10,29 @@ from threading import Thread
 isn_context = Context()
 config = Config()
 client = None
-current_channel = None
+current_vchannel = None
+current_tchannel = None
 
 ### CHECKS ###
 
-async def check_channel():
-	if not current_channel:
-		try:
-			await set_channel(config[CFG_CHANNELID])
-		except:
-			raise Exception('Unknown current channel. Use "setch" command to set a new current channel')
-
 async def check_text_channel():
-	await check_channel()
-
-	if not hasattr(current_channel, 'send') and not hasattr(current_channel, 'history'):
-		raise Exception('Current channel is not a text channel')
+	if not current_tchannel:
+		try:
+			await set_channel(config[CFG_TCHANNELID])
+		except:
+			raise Exception('Unknown text channel. Use "setch" command to set the operand channel')
 
 async def check_voice_channel():
-	await check_channel()
-	
-	if not isinstance(current_channel, discord.VoiceChannel):
-		raise Exception('Current channel is not a voice channel')
+	if not current_vchannel:
+		try:
+			await set_channel(config[CFG_VCHANNELID])
+		except:
+			raise Exception('Unknown voice channel. Use "setch" command to set the operand channel')
 
 async def check_voice_client():
 	await check_voice_channel()
 
-	if not current_channel.guild.voice_client:
+	if not current_vchannel.guild.voice_client:
 		await join_channel()
 
 ### GARBAGE COLLECTOR ###
@@ -68,24 +64,29 @@ async def set_channel(channel_user_id: int):
 				except discord.NotFound:
 					raise Exception('Invalid channel/user ID!')
 
-	global current_channel
-	current_channel = channel
+	if isinstance(channel, discord.abc.Connectable):
+		global current_vchannel
+		current_vchannel = channel
+		config[CFG_VCHANNELID] = channel_user_id
+		notice(f'Current voice channel set to {type(channel).__name__} "{channel.name}"')
+	elif isinstance(channel, discord.abc.Messageable):
+		global current_tchannel
+		current_tchannel = channel
+		config[CFG_TCHANNELID] = channel_user_id
+		notice(f'Current text channel set to {type(channel).__name__} "{channel.name}"')
 	
-	notice(f'Current channel set to {type(channel).__name__} "{channel.name}"')
-
-	config[CFG_CHANNELID] = channel_user_id
 	config.save()
 
 async def sendmsg(*msgs: str):
 	await check_text_channel()
 
-	await current_channel.send(' '.join(msgs))
+	await current_tchannel.send(' '.join(msgs))
 
 async def join_channel():
 	await check_voice_channel()
 
 	try:
-		await current_channel.connect()
+		await current_vchannel.connect()
 	except discord.ClientException:
 		raise Exception('Unable to connect! Voice client is already connected')
 
@@ -145,7 +146,7 @@ def list_audio_stack():
 	echo(basename(now_playing))
 
 def play_audio(path: str):
-	vc = current_channel.guild.voice_client
+	vc = current_vchannel.guild.voice_client
 
 	if vc.is_playing():
 		notice(f'Added {path} to the queue')
@@ -186,7 +187,7 @@ def play_audio_sel(path_filter: str):
 		error(f'Could not match "{path_filter}"')
 		return
 
-	vc = current_channel.guild.voice_client
+	vc = current_vchannel.guild.voice_client
 
 	if not vc.is_playing():
 		process_audio_stack()
@@ -207,22 +208,22 @@ async def stop_audio():
 	global now_playing
 	now_playing = ''
 	audio_stack.clear()
-	current_channel.guild.voice_client.stop()
+	current_vchannel.guild.voice_client.stop()
 
 async def skip_audio():
 	await check_voice_client()
 	
-	current_channel.guild.voice_client.stop()
+	current_vchannel.guild.voice_client.stop()
 
 async def pause_audio():
 	await check_voice_client()
 
-	current_channel.guild.voice_client.pause()
+	current_vchannel.guild.voice_client.pause()
 
 async def resume_audio():
 	await check_voice_client()
 
-	current_channel.guild.voice_client.resume()
+	current_vchannel.guild.voice_client.resume()
 
 async def username(user_id: int):
 	user = client.get_user(user_id)
@@ -240,7 +241,7 @@ async def delete_num(count: int = 5):
 
 	deleted = 0
 	
-	async for message in current_channel.history(limit=count):
+	async for message in current_tchannel.history(limit=count):
 		await message.delete()
 		deleted += 1
 	
@@ -252,7 +253,7 @@ async def delete_last():
 	message = None
 	
 	try:
-		message = await current_channel.history(limit=100).find(lambda m: m.author.id == client.user.id)
+		message = await current_tchannel.history(limit=100).find(lambda m: m.author.id == client.user.id)
 	except:
 		raise Exception('Last message too far or not found!')
 	
@@ -263,7 +264,7 @@ async def msg_history(count: int = 5):
 	await check_text_channel()
 
 	last = None
-	msgs = await current_channel.history(limit = count).flatten()
+	msgs = await current_tchannel.history(limit = count).flatten()
 	msgs.reverse()
 	
 	if not len(msgs):

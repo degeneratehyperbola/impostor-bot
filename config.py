@@ -1,7 +1,8 @@
 import json
 
 CFG_TOKEN = 'BotToken'
-CFG_CHANNELID = 'ChannelID'
+CFG_VCHANNELID = 'VoiceChannelID'
+CFG_TCHANNELID = 'TextChannelID'
 
 class Config:
 	_config = {}
