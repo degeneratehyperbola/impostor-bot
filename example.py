@@ -193,9 +193,7 @@ def play_audio_sel(path_filter: str):
 		error(f'Could not match "{path_filter}"')
 		return
 
-	vc = current_vchannel.guild.voice_client
-
-	if not vc.is_playing():
+	if not current_vchannel.guild.voice_client.is_playing():
 		process_audio_stack()
 
 async def audio_fs(path: str):
@@ -231,7 +229,12 @@ async def pause_audio():
 async def resume_audio():
 	await check_voice_client()
 
-	current_vchannel.guild.voice_client.resume()
+	vc = current_vchannel.guild.voice_client
+
+	if vc.is_playing():
+		vc.resume()
+	elif len(audio_stack):
+		Thread(target=process_audio_stack()).start()
 
 async def username(user_id: int):
 	user = client.get_user(user_id)

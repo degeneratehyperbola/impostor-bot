@@ -37,7 +37,6 @@ def bold(*args: str, sep: str = ' ', end: str = '\n'):
 	stdout.write(sep.join([str(i) for i in args]))
 	stdout.write(f'{__CSI}0m{end}')
 
-# @operator
 # def color(r: int = 255, g: int = 255, b: int = 255):
 # 	stdout.write(f'{__CSI}38;2;{r};{g},{b}m')
 
