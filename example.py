@@ -139,7 +139,7 @@ def process_audio_stack(e: Exception = None):
 
 def list_audio_stack():
 	from os.path import basename
-	bold('Audio queue')
+	bold(f'Audio queue contains {len(audio_stack)} item(s)')
 	echo(*[basename(i) for i in audio_stack], sep='\n')
 	bold('Now playing')
 	echo(basename(now_playing))
