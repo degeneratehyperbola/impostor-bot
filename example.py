@@ -204,6 +204,8 @@ async def audio_web(url: str):
 async def stop_audio():
 	await check_voice_client()
 
+	global now_playing
+	now_playing = ''
 	audio_stack.clear()
 	current_channel.guild.voice_client.stop()
 
