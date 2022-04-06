@@ -123,9 +123,13 @@ async def leave_voice_channel(channel_guild_id: int):
 
 	await guild.voice_client.disconnect()
 
+now_playing = ''
 audio_stack = []
 
 def process_audio_stack(e: Exception = None):
+	global now_playing
+	now_playing = ''
+
 	if len(audio_stack):
 		next_audio = audio_stack[0]
 		del audio_stack[0]
@@ -134,8 +138,11 @@ def process_audio_stack(e: Exception = None):
 		notice('Reached the end of the audio queue')
 
 def list_audio_stack():
+	from os.path import basename
 	bold('Audio queue')
-	echo(*audio_stack, sep='\n')
+	echo(*[basename(i) for i in audio_stack], sep='\n')
+	bold('Now playing')
+	echo(basename(now_playing))
 
 def play_audio(path: str):
 	vc = current_channel.guild.voice_client
@@ -146,6 +153,8 @@ def play_audio(path: str):
 		return
 
 	try:
+		global now_playing
+		now_playing = path
 		vc.play(discord.FFmpegPCMAudio(source=path), after=process_audio_stack)
 	except Exception as e:
 		error(e)
@@ -336,7 +345,7 @@ if __name__ == '__main__':
 	isn_context.register('skip', skip_audio)
 	isn_context.register('pause', pause_audio)
 	isn_context.register('resume', resume_audio)
-	isn_context.register('q', list_audio_stack)
+	isn_context.register('aq', list_audio_stack)
 
 	isn_context.register('set', isn_context.setvar)
 	isn_context.register('get', isn_context.getvar)
