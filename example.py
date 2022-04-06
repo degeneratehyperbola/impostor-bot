@@ -127,7 +127,7 @@ async def leave_voice_channel(channel_guild_id: int):
 
 audio_stack = []
 
-def process_audio_stack(e):
+def process_audio_stack(e: Exception = None):
 	if len(audio_stack):
 		next_audio = audio_stack[0]
 		del audio_stack[0]
@@ -136,11 +136,6 @@ def process_audio_stack(e):
 		notice('Reached the end of the audio queue')
 
 def play_audio(path: str):
-	from os.path import exists
-	if not exists(path):
-		error(f'Could not find {path}')
-		return
-
 	vc = current_channel.guild.voice_client
 
 	if vc.is_playing():
@@ -167,10 +162,28 @@ def download_play_audio(url: str):
 		
 	play_audio(path)
 
+def play_audio_sel(path_filter: str):
+	from glob import glob
+	from os.path import isfile
+
+	sel = [p for p in glob(path_filter, recursive=True) if isfile(p)]
+	if len(sel):
+		global audio_stack
+		audio_stack += sel
+		notice(f'Added {len(sel)} files to the queue')
+	else:
+		error(f'Could not match "{path_filter}"')
+		return
+
+	vc = current_channel.guild.voice_client
+
+	if not vc.is_playing():
+		process_audio_stack()
+
 async def audio_fs(path: str):
 	await check_voice_client()
 
-	Thread(target=play_audio, args=(path,)).start()
+	Thread(target=play_audio_sel, args=(path,)).start()
 
 async def audio_web(url: str):
 	await check_voice_client()
