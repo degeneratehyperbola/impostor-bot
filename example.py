@@ -51,9 +51,7 @@ def clear_cache():
 
 def cmdlist(*msgs: str):
 	bold('List of registered commands')
-	
-	for key in isn_context.cmds().keys():
-		echo(key)
+	echo(*isn_context.cmds().keys(), sep='\n')
 
 async def set_channel(channel_user_id: int):
 	channel = client.get_channel(channel_user_id)
@@ -134,6 +132,10 @@ def process_audio_stack(e: Exception = None):
 		play_audio(next_audio)
 	else:
 		notice('Reached the end of the audio queue')
+
+def list_audio_stack():
+	bold('Audio queue')
+	echo(*audio_stack, sep='\n')
 
 def play_audio(path: str):
 	vc = current_channel.guild.voice_client
@@ -334,6 +336,7 @@ if __name__ == '__main__':
 	isn_context.register('skip', skip_audio)
 	isn_context.register('pause', pause_audio)
 	isn_context.register('resume', resume_audio)
+	isn_context.register('q', list_audio_stack)
 
 	isn_context.register('set', isn_context.setvar)
 	isn_context.register('get', isn_context.getvar)
