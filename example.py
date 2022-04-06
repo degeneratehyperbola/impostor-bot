@@ -205,14 +205,16 @@ async def audio_web(url: str):
 async def stop_audio():
 	await check_voice_client()
 
-	global now_playing
-	now_playing = ''
 	audio_stack.clear()
 	current_vchannel.guild.voice_client.stop()
 
-async def skip_audio():
+async def skip_audio(count: int = 1):
 	await check_voice_client()
 	
+	if count < 1:
+		raise Exception(f'What? How do you skip {count} items?')
+
+	del audio_stack[:count - 1]
 	current_vchannel.guild.voice_client.stop()
 
 async def pause_audio():
