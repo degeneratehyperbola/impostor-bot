@@ -313,25 +313,25 @@ async def command_prompt():
 
 if __name__ == '__main__':
 	client = Client()
-	
+
 	isn_context.register('help', cmdlist)
-	
+
 	isn_context.register('echo', echo)
 	isn_context.register('ntc', notice)
 	isn_context.register('err', error)
 	isn_context.register('bold', bold)
 	isn_context.register('cls', clear)
 	isn_context.register('pos', cur_pos)
-	
+
 	isn_context.register('input', ainput)
 	isn_context.register('nop', nop)
 	isn_context.register('rem', nop)
 	isn_context.register('eval', eval_e)
-	
+
 	isn_context.register('break', client.close)
 
 	isn_context.register('uname', username)
-	
+
 	isn_context.register('setch', set_channel)
 	isn_context.register('msg', sendmsg)
 	isn_context.register('unmsg', delete_last)
@@ -357,17 +357,22 @@ if __name__ == '__main__':
 	notice(f'Successfully registered {len(isn_context.cmds())} commands. Type "help" to see a full list of instructions')
 	echo('Connecting...')
 
-	config.load()
+	try:
+		config.load()
+	except Exception as e:
+		error(e)
+		exit()
 
 	client.create_task(command_prompt())
 
 	try:
 		client.loop.run_until_complete(client.start(config[CFG_TOKEN]))
 	except TypeError or KeyError:
-		error(f'Missing bot token in {CFG_PATH}')
+		error(f'Missing bot token in {config.path}')
 	except discord.LoginFailure:
-		error(f'Invalid bot token in {CFG_PATH}')
+		error(f'Invalid bot token in {config.path}')
 	except KeyboardInterrupt:
 		client.loop.run_until_complete(client.close())
-	except:
-		pass
+	except Exception as e:
+		error(e)
+		exit()

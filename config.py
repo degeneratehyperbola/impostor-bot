@@ -1,11 +1,11 @@
 import json
 
-CFG_PATH = "config.json"
-CFG_CHANNELID = "ChannelID"
-CFG_TOKEN = "BotToken"
+CFG_TOKEN = 'BotToken'
+CFG_CHANNELID = 'ChannelID'
 
 class Config:
 	_config = {}
+	path = 'config.json'
 
 ### OVERRIDES ###
 
@@ -32,32 +32,23 @@ class Config:
 
 ### SAVE & LOAD ###
 
-	def ensure_file(self):
+	def _ensure_file(self):
 		from os.path import exists
-		if not exists(CFG_PATH):
-			open(CFG_PATH, "r").close()
+		if not exists(self.path):
+			open(self.path, 'r').close()
 
 	def save(self):
-		self.ensure_file()
+		self._ensure_file()
 
-		with open(CFG_PATH, "w") as file:
+		with open(self.path, 'w') as file:
 			file.write(json.dumps(self._config, sort_keys=True, indent="\t"))
-			file.close()
 
-	def load(self) -> bool:
-		self.ensure_file()
+	def load(self):
+		self._ensure_file()
 
 		buffer = None
-		with open(CFG_PATH, "r") as file:
-			try:
-				buffer = json.loads(file.read())
-			except:
-				pass
-			finally:
-				file.close()
+		with open(self.path, 'r') as file:
+			buffer = json.loads(file.read())
 
 		if type(buffer) is dict:
 			self._config = buffer
-			return True
-		
-		return False
