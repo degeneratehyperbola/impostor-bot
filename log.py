@@ -18,22 +18,17 @@ def clear(scroll: bool = False):
 	stdout.write(f'{__CSI}1;1H')
 
 def echo(*args: str, sep: str = ' ', end: str = '\n'):
-	stdout.write(f'{__CSI}0m')
-	stdout.write(sep.join([str(i) for i in args]))
-	stdout.write(f'{end}')
-
-def error(*args: str, sep: str = ' ', end: str = '\n'):
-	stdout.write(f'{__CSI}41;93m')
-	stdout.write(sep.join([str(i) for i in args]))
-	stdout.write(f'{__CSI}0m{end}')
-
-def notice(*args: str, sep: str = ' ', end: str = '\n'):
-	stdout.write(f'{__CSI}44;97m')
+	stdout.write(f'{__CSI}90m')
 	stdout.write(sep.join([str(i) for i in args]))
 	stdout.write(f'{__CSI}0m{end}')
 
 def bold(*args: str, sep: str = ' ', end: str = '\n'):
-	stdout.write(f'{__CSI}7m')
+	stdout.write(f'{__CSI}97m')
+	stdout.write(sep.join([str(i) for i in args]))
+	stdout.write(f'{__CSI}0m{end}')
+
+def error(*args: str, sep: str = ' ', end: str = '\n'):
+	stdout.write(f'{__CSI}91m')
 	stdout.write(sep.join([str(i) for i in args]))
 	stdout.write(f'{__CSI}0m{end}')
 

@@ -19,4 +19,4 @@ class Client(discord.Client):
 		return await super().close()
 	
 	async def on_ready(self):
-		notice('Client connected')
+		bold('Client connected')

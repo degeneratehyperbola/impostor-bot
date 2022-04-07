@@ -41,7 +41,7 @@ def clear_cache():
 	from os import remove
 	remove('cache')
 
-	notice('Cache successfully cleared')
+	echo('Cache successfully cleared')
 
 ### COMMANDS ###
 
@@ -68,12 +68,12 @@ async def set_channel(channel_user_id: int):
 		global current_vchannel
 		current_vchannel = channel
 		config[CFG_VCHANNELID] = channel_user_id
-		notice(f'Current voice channel set to {type(channel).__name__} "{channel.name}"')
+		echo(f'Current voice channel set to {type(channel).__name__} "{channel.name}"')
 	elif isinstance(channel, discord.abc.Messageable):
 		global current_tchannel
 		current_tchannel = channel
 		config[CFG_TCHANNELID] = channel_user_id
-		notice(f'Current text channel set to {type(channel).__name__} "{channel.name}"')
+		echo(f'Current text channel set to {type(channel).__name__} "{channel.name}"')
 	
 	config.save()
 
@@ -98,7 +98,7 @@ async def leave_all_voice_channels():
 			await voice_client.disconnect()
 			left += 1
 	
-	notice(f'Left {left} voice channel(s)')
+	echo(f'Left {left} voice channel(s)')
 
 async def leave_voice_channel(channel_guild_id: int):
 	guild = None
@@ -136,7 +136,7 @@ def process_audio_stack(e: Exception = None):
 		del audio_stack[0]
 		play_audio(next_audio)
 	else:
-		notice('Reached the end of the audio queue')
+		echo('Reached the end of the audio queue')
 
 def list_audio_stack():
 	from os.path import basename
@@ -149,13 +149,13 @@ def shuffle_audio_stack():
 	from random import shuffle
 	shuffle(audio_stack)
 
-	notice('Shuffled the audio queue')
+	echo('Shuffled the audio queue')
 
 def play_audio(path: str):
 	vc = current_vchannel.guild.voice_client
 
 	if vc.is_playing():
-		notice(f'Added {path} to the queue')
+		echo(f'Added {path} to the queue')
 		audio_stack.append(path)
 		return
 
@@ -188,7 +188,7 @@ def play_audio_sel(path_filter: str):
 	if len(sel):
 		global audio_stack
 		audio_stack += sel
-		notice(f'Added {len(sel)} files to the queue')
+		echo(f'Added {len(sel)} files to the queue')
 	else:
 		error(f'Could not match "{path_filter}"')
 		return
@@ -256,7 +256,7 @@ async def delete_num(count: int = 5):
 		await message.delete()
 		deleted += 1
 	
-	notice(f'Successfully deleted {deleted} message(s)')
+	echo(f'Successfully deleted {deleted} message(s)')
 
 async def delete_last():
 	await check_text_channel()
@@ -269,7 +269,7 @@ async def delete_last():
 		raise Exception('Last message too far or not found!')
 	
 	await message.delete()
-	notice('Successfully deleted 1 message')
+	echo('Successfully deleted 1 message')
 
 async def msg_history(count: int = 5):
 	await check_text_channel()
@@ -286,7 +286,7 @@ async def msg_history(count: int = 5):
 			user = await username(m.author.id)
 			
 			if last != user:
-				notice(user, '\t\t', m.created_at)
+				bold(user, '\t\t', m.created_at)
 			
 			echo(m.content)
 			
@@ -329,7 +329,7 @@ if __name__ == '__main__':
 	isn_context.register('help', cmdlist)
 
 	isn_context.register('echo', echo)
-	isn_context.register('ntc', notice)
+	isn_context.register('ntc', echo)
 	isn_context.register('err', error)
 	isn_context.register('bold', bold)
 	isn_context.register('cls', clear)
@@ -367,7 +367,7 @@ if __name__ == '__main__':
 
 	isn_context.register('clrcache', clear_cache)
 
-	notice(f'Successfully registered {len(isn_context.cmds())} commands. Type "help" to see a full list of instructions')
+	bold(f'Successfully registered {len(isn_context.cmds())} commands. Type "help" to see a full list of instructions')
 	echo('Connecting...')
 
 	try:
