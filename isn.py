@@ -139,9 +139,8 @@ class Context:
 		
 		# Cast all args based on the command's function signature
 		sig = Signature(fn)
-		args_cast = args.copy()
-		i = 0
-		for param_name in sig.parameters.keys():
+		castargs = args.copy()
+		for i, param_name in enumerate(sig.parameters.keys()):
 			param = sig.parameters[param_name]
 			type_ = param.annotation
 			kind = param.kind
@@ -152,18 +151,18 @@ class Context:
 			
 			if not type_ is AnyType:
 				if kind is Parameter.VAR_POSITIONAL:
-					args_var = args_cast[i:]
+					varargs = castargs[i:]
 					
-					for ii in range(len(args_var)):
+					for ii, vararg in enumerate(varargs):
 						try:
-							args_cast[i + ii] = type_(args_var[ii])
+							castargs[i + ii] = type_(vararg)
 						except ValueError:
-							raise CastError(f'Unable to convert "{args_var[ii]}" to type "{type_.__name__}"! Variable argument {i + ii} : "{param_name}"')
+							raise CastError(f'Unable to convert "{vararg}" to type "{type_.__name__}"! Variable argument {i + ii} : "{param_name}"')
 						except Exception as e:
 							raise CastError(f'Internal error occured while converting variable arguments for command "{alias}"!\n' + str(e))
 				else:
 					try:
-						args_cast[i] = type_(args_cast[i])
+						castargs[i] = type_(castargs[i])
 					except IndexError:
 						if param.default is Parameter.empty:
 							raise CastError(f'Missing argument "{param_name}" of type "{type_.__name__}"!')
@@ -172,14 +171,13 @@ class Context:
 						raise CastError(f'Unable to convert "{args[i]}" to type "{type_.__name__}"! Parameter {i} : "{param_name}".')
 					except Exception as e:
 						raise CastError(f'Internal error occured while converting arguments for command "{alias}"!\n' + str(e))
-			i += 1
 		
 		# Execute the command
 		res = None
 		if is_async(fn):
-			res = await fn(*args_cast)
+			res = await fn(*castargs)
 		else:
-			res = fn(*args_cast)
+			res = fn(*castargs)
 		
 		return res
 
