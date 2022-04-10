@@ -47,7 +47,7 @@ def clear_cache():
 
 def cmdlist(*msgs: str):
 	bold('List of registered commands')
-	echo(*isn_context.cmds().keys(), sep='\n')
+	echo(*isn_context.instructions().keys(), sep='\n')
 
 async def set_channel(channel_user_id: int):
 	channel = client.get_channel(channel_user_id)
@@ -367,7 +367,7 @@ if __name__ == '__main__':
 
 	isn_context.register('clrcache', clear_cache)
 
-	bold(f'Successfully registered {len(isn_context.cmds())} commands. Type "help" to see a full list of instructions')
+	bold(f'Successfully registered {len(isn_context.instructions())} commands. Type "help" to see a full list of instructions')
 	echo('Connecting...')
 
 	try:

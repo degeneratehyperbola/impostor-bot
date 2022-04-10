@@ -86,24 +86,24 @@ def split(text: str, delimiters: str = ' \t', quotes: str = '\"\'', comments: st
 	return buffer
 
 class Context:
-	_cmd_reg = {}
-	_var_reg = {}
+	_instructions = {}
+	_globals = {}
 	
-	def cmds(self):
-		return self._cmd_reg.copy()
+	def instructions(self):
+		return self._instructions.copy()
 		
-	def vars(self):
-		return self._var_reg.copy()
+	def globals(self):
+		return self._globals.copy()
 
 	def register(self, alias: str, cmd: Cmd):
-		self._cmd_reg[alias] = cmd
+		self._instructions[alias] = cmd
 	
 	# Retrieves a variables value
 	async def getvar(self, alias: str):
 		val = None
 
 		try:
-			val = self._var_reg[alias]
+			val = self._globals[alias]
 		except KeyError:
 			raise VarIndexError(f'"{alias}" was not recognised as a variable!')
 		
@@ -114,7 +114,7 @@ class Context:
 		if value is None:
 			raise VarAssignError(f'cannot assign VOID to "{alias}"! Variable remains unchanged.')
 
-		self._var_reg[alias] = value
+		self._globals[alias] = value
 
 	# Parses and executes code one line at a time
 	async def _interpret_line(self, line: str):
@@ -133,7 +133,7 @@ class Context:
 		
 		# Search for a command with the given alias
 		try:
-			fn = self._cmd_reg[alias]
+			fn = self._instructions[alias]
 		except KeyError:
 			raise CmdIndexError(f'"{alias}" was not recognised as a command!')
 		
