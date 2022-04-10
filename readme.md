@@ -63,9 +63,9 @@ Set an existing variable or declare a new one:
 set <variable_name> <value>
 ```
 
-Retrieve the value from a declared variable:
+Pass a value from a variable as an argument:
 ```ps1
-<command> [arguments] @<variable_name> [arguments] 'in strings also! @<variable_name>'...
+<command> [arguments] @<variable_name> [arguments]...
 ```
 
 Comments are done with a hash `#` character:
