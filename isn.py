@@ -1,4 +1,6 @@
-from typing import Callable as Cmd
+from typing import Callable
+
+### IMPOSTOR SCRIPT NOTATION ###
 
 # TODO:
 # Comments with # (DONE)
@@ -13,8 +15,6 @@ from typing import Callable as Cmd
 # Custom, human comprehensible fucking split function
 # Bring back variable getter
 # Variable setting from commands that return a value
-
-### IMPOSTOR SCRIPT NOTATION ###
 
 class VarIndexError(Exception): pass
 class VarAssignError(Exception): pass
@@ -89,14 +89,21 @@ class Context:
 	_instructions = {}
 	_globals = {}
 	
+	# A map of all registered instructions in the context
+	# Note: the dictionary is immutable to the context
 	def instructions(self):
 		return self._instructions.copy()
-		
+	
+	# A map of all globals in the context
+	# Note: the dictionary is immutable to the context
 	def globals(self):
 		return self._globals.copy()
 
-	def register(self, alias: str, cmd: Cmd):
-		self._instructions[alias] = cmd
+	# Registers a new command with a given alias and a function that is called when the instruction is invoked
+	# The function can be both asynchronous and generic
+	# Use hints to automatically convert string arguments into respective types
+	def register(self, alias: str, fn: Callable):
+		self._instructions[alias] = fn
 	
 	# Retrieves a variables value
 	async def getvar(self, alias: str):
