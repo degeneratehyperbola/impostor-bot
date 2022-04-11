@@ -238,17 +238,6 @@ async def resume_audio():
 	elif len(audio_stack):
 		Thread(target=process_audio_stack()).start()
 
-async def username(user_id: int):
-	user = client.get_user(user_id)
-	
-	if not user:
-		try:
-			user = await client.fetch_user(user_id)
-		except discord.NotFound:
-			raise Exception('Invalid user ID!')
-	
-	return f'{user.name}#{user.discriminator}'
-
 async def delete_num(count: int = 5):
 	await check_text_channel()
 
@@ -313,10 +302,29 @@ async def delay(milliseconds: int):
 	from asyncio import sleep
 	await sleep(milliseconds / 1000)
 
+### DEBUG ###
+
+def args(*args):
+	echo(list(args))
+
 ### OPERATORS ###
 
-def add(a: int | float | str, b: int | float | str):
-	return a + b
+def add(a: int | float | str, *b: int | float | str):
+	result = a
+	for operand in b:
+		result += type(a)(operand)
+	return result
+
+async def username(user_id: int):
+	user = client.get_user(user_id)
+	
+	if not user:
+		try:
+			user = await client.fetch_user(user_id)
+		except discord.NotFound:
+			raise Exception('Invalid user ID!')
+	
+	return f'{user.name}#{user.discriminator}'
 
 ### COMMAND PROMPT ###
 
@@ -388,6 +396,8 @@ if __name__ == '__main__':
 	isn_context.register('run', run_file)
 
 	isn_context.register('clrcache', clear_cache)
+
+	isn_context.register('!args', args)
 
 	bold(f'Successfully registered {len(isn_context.instructions())} commands. Type "help" to see a full list of instructions')
 	echo('Connecting...')
