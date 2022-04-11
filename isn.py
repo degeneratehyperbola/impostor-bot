@@ -18,6 +18,7 @@ from typing import Callable
 # Operations on variables O_O
 # Transition @ to an operator
 # Add switch/if statemetents or at least ternery operators
+# Include the line number in raised exceptions
 
 class VarIndexError(Exception): pass
 class VarAssignError(Exception): pass
@@ -127,7 +128,7 @@ class Context:
 		self._globals[alias] = value
 
 	# Parses and executes code one line at a time
-	async def interpret_line(self, line: str, escapes: str = '\\', variable_notes: str = '@'):
+	async def interpret_line(self, line: str, line_number: int = 0, escapes: str = '\\', variable_notes: str = '@'):
 		from inspect import iscoroutinefunction as is_async
 		from inspect import signature as Signature
 		from inspect import Parameter
