@@ -305,6 +305,10 @@ def eval_e(*args):
 async def setcmd(alias: str, *args: str):
 	await isn_context.setvar(alias, await isn_context.interpret_line(' '.join(args)))
 
+async def run_file(path: str):
+	with open(path, 'r') as file:
+		await isn_context.interpret(file.read())
+
 ### COMMAND PROMPT ###
 
 async def ainput(prompt: str = '') -> str:
@@ -370,6 +374,8 @@ if __name__ == '__main__':
 	isn_context.register('set', isn_context.setvar)
 	isn_context.register('setc', setcmd)
 	isn_context.register('get', isn_context.getvar)
+
+	isn_context.register('run', run_file)
 
 	isn_context.register('clrcache', clear_cache)
 
