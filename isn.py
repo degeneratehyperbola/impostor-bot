@@ -9,11 +9,11 @@ from typing import Callable
 # Get property for any py object .......... Future me here. Das wicked niggster, hell, add a fucking eval operator (DONE)
 # Call any py object's method ............. Future me here again. No words (DONE)
 # Nigusi O_O (DONE)
+# Bring back variable getter (DONE)
 # Detours with > or perhaps with separate command (idk, more of a frontend task)
 # Scopes O_O powered by scoped_split()
 # Operations on variables O_O
 # Custom, human comprehensible fucking split function
-# Bring back variable getter
 # Variable setting from commands that return a value
 
 class VarIndexError(Exception): pass
@@ -124,18 +124,32 @@ class Context:
 		self._globals[alias] = value
 
 	# Parses and executes code one line at a time
-	async def _interpret_line(self, line: str):
+	async def _interpret_line(self, line: str, escapes: str = '\\', variable_notes: str = '@'):
 		from inspect import iscoroutinefunction as is_async
 		from inspect import signature as Signature
 		from inspect import Parameter
 		from inspect import _empty as AnyType
 
-		words = split(line)
+		words = split(line, escapes=escapes)
 		if not len(words): return
 		
 		alias = words[0]
 		args = words[1:]
-		
+
+		# Replace all arguments starting with @ with global values 
+		for i, arg in enumerate(args):
+			if not len(arg):
+				continue
+
+			if arg[0] in variable_notes:
+				if len(arg) < 2:
+					raise SyntaxError(f'Expected variable name after {arg[0]}')
+
+				args[i] = await self.getvar(arg[1:])
+			elif len(arg) > 1 and arg[0] in escapes and arg[1] in variable_notes:
+				# Handle escaped @ character
+				args[i] = arg[1:]
+
 		fn = None
 		
 		# Search for a command with the given alias
