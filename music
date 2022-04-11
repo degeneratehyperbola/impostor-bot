@@ -1,0 +1,5 @@
+stop
+delay 3000
+play cache/*
+delay 5000
+shuffle
