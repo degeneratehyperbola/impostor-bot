@@ -15,6 +15,7 @@ from typing import Callable
 # Variable setting from commands that return a value (DONE)
 # Union parameters (DONE)
 # Scopes O_O powered by scoped_split()
+# LOCALS O_O
 # Operations on variables O_O
 # Transition @ to an operator
 # Add switch/if statemetents or at least ternery operators

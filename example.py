@@ -6,6 +6,9 @@ from threading import Thread
 
 # TODO:
 # Command prompt always on the bottom
+# Run files as commands
+# Pass arguments to files
+# Full wait command to wait for newly created threads
 
 isn_context = Context()
 config = Config()
