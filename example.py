@@ -309,6 +309,10 @@ async def run_file(path: str):
 	with open(path, 'r') as file:
 		await isn_context.interpret(file.read())
 
+async def delay(milliseconds: int):
+	from asyncio import sleep
+	await sleep(milliseconds / 1000)
+
 ### COMMAND PROMPT ###
 
 async def ainput(prompt: str = '') -> str:
@@ -347,6 +351,7 @@ if __name__ == '__main__':
 	isn_context.register('input', ainput)
 	isn_context.register('nop', nop)
 	isn_context.register('rem', nop)
+	isn_context.register('delay', delay)
 	isn_context.register('eval', eval_e)
 
 	isn_context.register('break', client.close)
