@@ -9,12 +9,15 @@ from typing import Callable
 # Get property for any py object .......... Future me here. Das wicked niggster, hell, add a fucking eval operator (DONE)
 # Call any py object's method ............. Future me here again. No words (DONE)
 # Nigusi O_O (DONE)
+# Custom, human comprehensible fucking split function (DONE)
 # Bring back variable getter (DONE)
-# Detours with > or perhaps with separate command (idk, more of a frontend task)
+# Detours with > or perhaps with separate command (idk, more of a frontend task) (DONE)
+# Variable setting from commands that return a value (DONE)
+# Union parameters (DONE)
 # Scopes O_O powered by scoped_split()
 # Operations on variables O_O
-# Custom, human comprehensible fucking split function
-# Variable setting from commands that return a value
+# Transition @ to an operator
+# Add switch/if statemetents or at least ternery operators
 
 class VarIndexError(Exception): pass
 class VarAssignError(Exception): pass
@@ -128,7 +131,7 @@ class Context:
 		from inspect import iscoroutinefunction as is_async
 		from inspect import signature as Signature
 		from inspect import Parameter
-		from inspect import _empty as AnyType
+		from types import UnionType
 
 		words = split(line, escapes=escapes)
 		if not len(words): return
@@ -160,45 +163,56 @@ class Context:
 		
 		# Cast all args based on the command's function signature
 		sig = Signature(fn)
-		castargs = args.copy()
 		for i, param_name in enumerate(sig.parameters.keys()):
 			param = sig.parameters[param_name]
-			type_ = param.annotation
+			t = param.annotation
 			kind = param.kind
 			
 			# Keyword parameters are inaccessible
-			if kind is Parameter.KEYWORD_ONLY or kind is Parameter.VAR_KEYWORD:
+			if kind == Parameter.KEYWORD_ONLY or kind == Parameter.VAR_KEYWORD:
 				continue
 			
-			if not type_ is AnyType:
-				if kind is Parameter.VAR_POSITIONAL:
-					varargs = castargs[i:]
-					
-					for ii, vararg in enumerate(varargs):
+			if not t == Parameter.empty:
+				def cast(arg_i, types):
+					def to_iter(obj):
 						try:
-							castargs[i + ii] = type_(vararg)
+							return iter(obj)
+						except TypeError:
+							return iter([obj])
+					
+					for t in to_iter(types):
+						try:
+							args[arg_i] = t(args[arg_i])
+						except IndexError:
+							if param.default == Parameter.empty:
+								raise CastError(f'Missing argument "{param_name}" of type "{t.__name__}"!')
+							return True
 						except ValueError:
-							raise CastError(f'Unable to convert "{vararg}" to type "{type_.__name__}"! Variable argument {i + ii} : "{param_name}"')
-						except Exception as e:
-							raise CastError(f'Internal error occured while converting variable arguments for command "{alias}"!\n' + str(e))
+							if t is types[-1]:
+								raise CastError(f'Unable to convert "{args[arg_i]}" to type "{t.__name__}"! Parameter {arg_i} : "{param_name}".')
+							continue
+
+						return False
+
+				if kind == Parameter.VAR_POSITIONAL:
+					for ii in range(len(args[i:])):
+						if type(t) is UnionType:
+							cast(i + ii, t.__args__)
+						else:
+							cast(i + ii, t)
 				else:
-					try:
-						castargs[i] = type_(castargs[i])
-					except IndexError:
-						if param.default is Parameter.empty:
-							raise CastError(f'Missing argument "{param_name}" of type "{type_.__name__}"!')
-						break
-					except ValueError:
-						raise CastError(f'Unable to convert "{args[i]}" to type "{type_.__name__}"! Parameter {i} : "{param_name}".')
-					except Exception as e:
-						raise CastError(f'Internal error occured while converting arguments for command "{alias}"!\n' + str(e))
+					if type(t) is UnionType:
+						cast(i, t.__args__)
+					else:
+						if cast(i, t):
+							break
 		
 		# Execute the command
 		res = None
 		if is_async(fn):
-			res = await fn(*castargs)
+			res = await fn(*args)
 		else:
-			res = fn(*castargs)
+			res = fn(*args)
 		
 		return res
 

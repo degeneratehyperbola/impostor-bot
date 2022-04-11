@@ -313,6 +313,11 @@ async def delay(milliseconds: int):
 	from asyncio import sleep
 	await sleep(milliseconds / 1000)
 
+### OPERATORS ###
+
+def add(a: int | float | str, b: int | float | str):
+	return a + b
+
 ### COMMAND PROMPT ###
 
 async def ainput(prompt: str = '') -> str:
@@ -341,6 +346,8 @@ if __name__ == '__main__':
 
 	isn_context.register('help', cmdlist)
 
+	isn_context.register('break', client.close)
+
 	isn_context.register('echo', echo)
 	isn_context.register('ntc', echo)
 	isn_context.register('err', error)
@@ -348,14 +355,12 @@ if __name__ == '__main__':
 	isn_context.register('cls', clear)
 	isn_context.register('pos', cur_pos)
 
+	isn_context.register('eval', eval_e)
 	isn_context.register('input', ainput)
 	isn_context.register('nop', nop)
 	isn_context.register('rem', nop)
 	isn_context.register('delay', delay)
-	isn_context.register('eval', eval_e)
-
-	isn_context.register('break', client.close)
-
+	isn_context.register('add', add)
 	isn_context.register('uname', username)
 
 	isn_context.register('setch', set_channel)
