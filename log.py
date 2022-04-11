@@ -1,6 +1,4 @@
-from ast import arg
 from sys import stdout
-from threading import Lock
 
 __ESC = '\033'
 __CSI = f'{__ESC}['
