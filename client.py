@@ -1,10 +1,11 @@
+from gc import callbacks
 from typing import Coroutine, Generator
 from log import *
 import discord
 
 class Client(discord.Client):
 	tasks = []
-	
+
 	def create_task(self, coro: Coroutine | Generator):
 		task = self.loop.create_task(coro)
 		self.tasks.append(task)
@@ -17,6 +18,6 @@ class Client(discord.Client):
 			if not task.done(): task.cancel()
 			
 		return await super().close()
-	
+
 	async def on_ready(self):
 		bold('Client connected')

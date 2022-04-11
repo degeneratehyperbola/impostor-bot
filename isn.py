@@ -204,7 +204,7 @@ class Context:
 
 	# Splits text into a list of lines then interprets them
 	async def interpret(self, text: str):
-		lines = split(text, delimiters='\n', quotes='', comments='', escapes='')
+		lines = split(text, delimiters=';\n', quotes='', comments='', escapes='')
 		if not len(lines): return
 		
 		for line in lines:
