@@ -146,7 +146,9 @@ def list_audio_stack():
 	echo(basename(now_playing))
 
 def shuffle_audio_stack():
-	from random import shuffle
+	from random import shuffle, seed
+	from time import time
+	seed(time())
 	shuffle(audio_stack)
 
 	echo('Shuffled the audio queue')
