@@ -302,6 +302,9 @@ def nop(*args):
 def eval_e(*args):
 	eval(' '.join(args))
 
+async def setcmd(alias: str, *args: str):
+	await isn_context.setvar(alias, await isn_context.interpret_line(' '.join(args)))
+
 ### COMMAND PROMPT ###
 
 async def ainput(prompt: str = '') -> str:
@@ -365,6 +368,7 @@ if __name__ == '__main__':
 	isn_context.register('shuffle', shuffle_audio_stack)
 
 	isn_context.register('set', isn_context.setvar)
+	isn_context.register('setc', setcmd)
 	isn_context.register('get', isn_context.getvar)
 
 	isn_context.register('clrcache', clear_cache)

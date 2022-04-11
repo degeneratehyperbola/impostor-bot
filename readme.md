@@ -56,12 +56,15 @@ And escaping with a backslash `\` like so:
 # Parsed as: ['can have "funny" symbols in here, including the \']
 ```
 
-There is also a support for variables but, currently, no way of setting them using implemented instructions.
-
 Set an existing variable or declare a new one:
 ```ps1
 set <variable_name> <value>
 ```
+
+Set/initialize a variable to a command's return value:
+```ps1
+setc <variable_name> <command> [arguments]...
+```  
 
 Pass a value from a variable as an argument:
 ```ps1

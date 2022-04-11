@@ -124,7 +124,7 @@ class Context:
 		self._globals[alias] = value
 
 	# Parses and executes code one line at a time
-	async def _interpret_line(self, line: str, escapes: str = '\\', variable_notes: str = '@'):
+	async def interpret_line(self, line: str, escapes: str = '\\', variable_notes: str = '@'):
 		from inspect import iscoroutinefunction as is_async
 		from inspect import signature as Signature
 		from inspect import Parameter
@@ -209,4 +209,4 @@ class Context:
 		
 		for line in lines:
 			if not len(line): continue
-			await self._interpret_line(line)
+			await self.interpret_line(line)
