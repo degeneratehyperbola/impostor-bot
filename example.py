@@ -364,7 +364,7 @@ if __name__ == '__main__':
 	isn_context.register('err', error)
 	isn_context.register('bold', bold)
 	isn_context.register('cls', clear)
-	isn_context.register('pos', cur_pos)
+	isn_context.register('pos', cur_place)
 
 	isn_context.register('eval', eval_e)
 	isn_context.register('input', ainput)

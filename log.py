@@ -3,8 +3,22 @@ from sys import stdout
 __ESC = '\033'
 __CSI = f'{__ESC}['
 
-def cur_pos(row: int = 1, col: int = 1):
+def cur_place(col: int = 1, row: int = 1):
 	stdout.write(f'{__CSI}{row};{col}H')
+
+def cur_move(col: int = 1, row: int = 0):
+	if col < 0:
+		stdout.write(f'{__CSI}{-col}D')
+	else:
+		stdout.write(f'{__CSI}{col}C')
+
+	if row < 0:
+		stdout.write(f'{__CSI}{-row}A')
+	else:
+		stdout.write(f'{__CSI}{row}B')
+
+def cur_col(col: int = 1):
+	stdout.write(f'{__CSI}{col}G')
 
 def clear_line():
 	stdout.write(f'{__CSI}2K{__CSI}G')
