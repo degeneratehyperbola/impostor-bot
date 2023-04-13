@@ -3,6 +3,9 @@ from sys import stdout
 __ESC = '\033'
 __CSI = f'{__ESC}['
 
+def flush():
+	stdout.flush()
+
 def cur_place(col: int = 1, row: int = 1):
 	stdout.write(f'{__CSI}{row};{col}H')
 
