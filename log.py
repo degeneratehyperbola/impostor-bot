@@ -20,6 +20,12 @@ def cur_move(col: int = 1, row: int = 0):
 def cur_col(col: int = 1):
 	stdout.write(f'{__CSI}{col}G')
 
+def cur_save():
+	stdout.write(f'{__CSI}s')
+
+def cur_restore():
+	stdout.write(f'{__CSI}u')
+
 def clear_line():
 	stdout.write(f'{__CSI}2K{__CSI}G')
 
