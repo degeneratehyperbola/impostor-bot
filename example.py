@@ -415,7 +415,7 @@ if __name__ == '__main__':
 
 	try:
 		client.loop.run_until_complete(client.start(config[CFG_TOKEN]))
-	except TypeError or KeyError:
+	except KeyError:	
 		error(f'Missing bot token in {config.path}')
 	except discord.LoginFailure:
 		error(f'Invalid bot token in {config.path}')
